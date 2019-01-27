@@ -10,13 +10,51 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { Input, Button } from "react-native-elements";
-import { Font } from "expo";
+import { Font, Permissions, Notifications } from "expo";
 import axios from "axios";
-
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 const BG_IMAGE = require("../assets/images/wallpaper_3.jpg");
+
+async function registerForPushNotificationsAsync() {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS
+  );
+  let finalStatus = existingStatus;
+
+  // only ask if permissions have not already been determined, because
+  // iOS won't necessarily prompt the user a second time.
+  if (existingStatus !== "granted") {
+    // Android remote notification permissions are granted during the app
+    // install, so this will only ask on iOS
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+
+  // Stop here if the user did not grant permissions
+  if (finalStatus !== "granted") {
+    return;
+  }
+
+  // Get the token that uniquely identifies this device
+  // POST the token to your backend server from where you can retrieve it to send push notifications.
+  // return fetch(PUSH_ENDPOINT, {
+  //   method: 'POST',
+  //   headers: {
+  //     Accept: 'application/json',
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({
+  //     token: {
+  //       value: token,
+  //     },
+  //     user: {
+  //       username: 'Brent',
+  //     },
+  //   }),
+  // });
+}
 
 export default class Login extends React.Component {
   constructor(props) {
@@ -41,7 +79,8 @@ export default class Login extends React.Component {
       platform,
       app_version,
       device_info,
-      device_uuid
+      device_uuid,
+      token
     } = this.state;
 
     this.setState({
@@ -58,7 +97,8 @@ export default class Login extends React.Component {
         platform: platform,
         app_version: app_version,
         device_info: device_info,
-        device_uuid: device_uuid
+        device_uuid: device_uuid,
+        push_token: token
       }
     });
 
@@ -101,12 +141,34 @@ export default class Login extends React.Component {
       });
     event.preventDefault();
   };
-
+  _createNotificationAsync = () => {
+    Expo.Notifications.presentLocalNotificationAsync({
+      title: "Reminder",
+      body: "This is an important reminder!!!!",
+      android: {
+        channelId: "new",
+        color: "#8ac53f",
+        icon: "../assets/notification_icon.png"
+      }
+    });
+  };
   async componentDidMount() {
+    this._createNotificationAsync();
+    if (Platform.OS === "android") {
+      Expo.Notifications.createChannelAndroidAsync("new", {
+        name: "Delivera Business",
+        priority: "max",
+        vibrate: [0, 250, 250, 250],
+        sound: true
+      });
+    }
+    registerForPushNotificationsAsync();
+    let token = await Notifications.getExpoPushTokenAsync();
+
     await Font.loadAsync({
       regular: require("../assets/fonts/Montserrat-Regular.ttf")
     });
-    this.setState({ fontLoaded: true });
+    this.setState({ fontLoaded: true, token: token });
   }
 
   render() {
@@ -204,7 +266,6 @@ export default class Login extends React.Component {
                 buttonStyle={styles.buttonMainStyle}
                 containerStyle={{ marginVertical: 10 }}
                 titleStyle={{
-                  fontWeight: "bold",
                   color: "white",
                   fontSize: 20,
                   fontFamily: "regular"

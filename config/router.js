@@ -18,9 +18,66 @@ import NewOrders from "../screens/subscreens/NewOrders";
 import InfoScreen from "../screens/InfoScreen";
 import MyInfoScreen from "../screens/MyInfoScreen";
 import { Font } from "expo";
+import MyHistory from "../screens/subscreens/MyHistory";
+import DummyInfoScreen from "../screens/DummyInfoScreen";
 
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 const isAndroid = Platform.OS === "android";
+
+// static navigationOptions = ({ navigation }) => ({
+//   tabBarLabel: "Номер заказа: " + navigation.getParam("all").id,
+//   headerStyle: {
+//     backgroundColor: "white",
+//     paddingTop: 0,
+//     height: 60
+//   },
+//   headerTitleStyle: { color: "rgba(126,123,138,1)" },
+//   headerLeftContainerStyle: {
+//     padding: 0
+//   },
+//   headerTitleContainerStyle: {
+//     padding: 0
+//   },
+//   headerForceInset: { top: "never", bottom: "never" }
+// });
+
+class InfoScreenTitle extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fontLoaded: false
+    };
+  }
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      georgia: require("../assets/fonts/Georgia.ttf"),
+      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
+      light: require("../assets/fonts/Montserrat-Light.ttf"),
+      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+    });
+    this.setState({
+      fontLoaded: true
+    });
+  }
+  render() {
+    return (
+      <Text>
+        {this.state.fontLoaded ? (
+          <Text
+            style={{
+              fontFamily: "regular",
+              fontSize: 18,
+              color: "white"
+            }}
+          >
+            {"Номер заказа: " + this.props.navigation.getParam("all").id}
+          </Text>
+        ) : null}
+      </Text>
+    );
+  }
+}
 
 const OrderInfo = createStackNavigator({
   MainOrders: {
@@ -30,7 +87,12 @@ const OrderInfo = createStackNavigator({
       header: null
     }
   },
-  InfoScreen: { screen: InfoScreen }
+  InfoScreen: {
+    screen: InfoScreen
+    // navigationOptions: {
+    //   headerTitle: <Text>"Главная"</Text>
+    // }
+  }
 });
 
 const MyOrderInfo = createStackNavigator({
@@ -74,7 +136,7 @@ class NewOrdersTitle extends Component {
               color: "white"
             }}
           >
-            {"Заказы".toUpperCase()}
+            {"Новые".toUpperCase()}
           </Text>
         ) : null}
       </Text>
@@ -112,7 +174,7 @@ class MyOrdersTitle extends Component {
               color: "white"
             }}
           >
-            {"Мои заказы".toUpperCase()}
+            {"Оплаченные".toUpperCase()}
           </Text>
         ) : null}
       </Text>
@@ -212,20 +274,16 @@ class MaterialTopTabs extends React.Component {
         console.log(error, "error");
       });
   };
-  updateWithInterval = () => {
-    setInterval(() => {
-      this.loadToAction();
-    }, 20000);
-  };
   async componentDidMount() {
     this.loadToAction();
-    this.updateWithInterval();
+    this.intervaller = setInterval(() => {
+      this.loadToAction();
+    }, 20000);
   }
   componentWillUnmount() {
-    clearInterval(this.updateWithInterval());
+    clearInterval(this.intervaller);
   }
   loadToAction = async () => {
-    console.log("loading...");
     this.setState({ refreshing: true });
     let token = await AsyncStorage.getItem("access_token");
     const urlOrders = "https://api.delivera.uz/entity/new-orders";
@@ -362,6 +420,45 @@ class MaterialTopTabsTitle extends Component {
   }
 }
 
+class HistoryTitle extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fontLoaded: false
+    };
+  }
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      georgia: require("../assets/fonts/Georgia.ttf"),
+      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
+      light: require("../assets/fonts/Montserrat-Light.ttf"),
+      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+    });
+    this.setState({
+      fontLoaded: true
+    });
+  }
+  render() {
+    return (
+      <Text style={{ flex: 1, textAlign: "center" }}>
+        {this.state.fontLoaded ? (
+          <Text
+            style={{
+              flex: 1,
+              fontFamily: "regular",
+              fontSize: 15,
+              color: this.props.focusColor,
+              alignSelf: "center"
+            }}
+          >
+            {"Архив".toUpperCase()}
+          </Text>
+        ) : null}
+      </Text>
+    );
+  }
+}
 class DashboardTitle extends Component {
   constructor(props) {
     super(props);
@@ -401,6 +498,18 @@ class DashboardTitle extends Component {
     );
   }
 }
+
+const MyHistoryInfo = createStackNavigator({
+  MyMainHistory: {
+    screen: MyHistory,
+    navigationOptions: {
+      title: "1233",
+      header: null
+    }
+  },
+  DummyInfoScreen: { screen: DummyInfoScreen }
+});
+
 const TabNavigator = createBottomTabNavigator(
   {
     Main: {
@@ -416,6 +525,23 @@ const TabNavigator = createBottomTabNavigator(
             style={{ color: tintColor }}
           />
         )
+      }
+    },
+    History: {
+      screen: MyHistoryInfo,
+      navigationOptions: {
+        tabBarLabel: ({ tintColor, focused, horizontal }) => (
+          <HistoryTitle focusColor={focused ? "#8ac53f" : "grey"} />
+        ),
+        tabBarIcon: ({ tintColor, focused, horizontal }) => {
+          return (
+            <FontAwesome
+              name={focused ? "folder-open" : "folder-open-o"}
+              size={horizontal ? 20 : 26}
+              style={{ color: tintColor }}
+            />
+          );
+        }
       }
     },
     Dashboard: {

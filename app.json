@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Restaurants",
+    "name": "Delivera Business",
     "slug": "Delivera-Restaurants",
     "privacy": "public",
     "sdkVersion": "32.0.0",
@@ -12,6 +12,12 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "notification": {
+      "icon": "./assets/notification_icon.png",
+      "color": "#8ac53f",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Delivera Business"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, Button, CheckBox } from "react-native-elements";
+import { Text, Button, ListItem } from "react-native-elements";
 
 import {
   Platform,
@@ -46,10 +46,10 @@ class MyInfoScreenTitle extends Component {
             style={{
               fontFamily: "regular",
               fontSize: 18,
-              color: "white"
+              color: "black"
             }}
           >
-            {"Номер заказа: " + this.props.navigation.getParam("all").id}
+            {"Номер заказа: " + this.props.main_id}
           </Text>
         ) : null}
       </Text>
@@ -120,7 +120,12 @@ class MyInfoScreen extends Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    tabBarLabel: "Номер заказа: " + navigation.getParam("all").id,
+    headerTitle: (
+      <MyInfoScreenTitle
+        navigation={navigation}
+        main_id={navigation.getParam("all").id}
+      />
+    ),
     headerStyle: {
       backgroundColor: "white",
       paddingTop: 0,
@@ -153,7 +158,7 @@ class MyInfoScreen extends Component {
     let listProducts = this.state.fontLoaded
       ? allVal.items.map((l, i) => (
           <View key={l.food_id}>
-            <CheckBox
+            <ListItem
               title={
                 <Text
                   style={{
@@ -171,14 +176,6 @@ class MyInfoScreen extends Component {
                 justifyContent: "space-between",
                 padding: 20
               }}
-              iconRight
-              right
-              iconType="ionicon"
-              checkedIcon="ios-checkbox-outline"
-              uncheckedIcon="ios-square-outline"
-              checkedColor="#8ac53f"
-              onPress={() => this.checkItems(l.food_id, i)}
-              checked={this.state.items[i].checked}
             />
           </View>
         ))
@@ -208,38 +205,7 @@ class MyInfoScreen extends Component {
                   justifyContent: "center",
                   alignItems: "center"
                 }}
-              >
-                <Button
-                  containerStyle={{ marginVertical: 20 }}
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center"
-                  }}
-                  buttonStyle={{
-                    height: 45,
-                    width: SCREEN_WIDTH - 80,
-                    borderRadius: 30,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "#8ac53f"
-                  }}
-                  // linearGradientProps={{
-                  //   colors: ["rgba(214,116,112,1)", "rgba(233,174,87,1)"],
-                  //   start: [1, 0],
-                  //   end: [0.2, 0]
-                  // }}
-                  title={"Отправить"}
-                  titleStyle={{
-                    fontFamily: "regular",
-                    fontSize: 20,
-                    color: "white",
-                    textAlign: "center"
-                  }}
-                  onPress={this.handleModal}
-                  activeOpacity={0.5}
-                />
-              </View>
+              />
               {modalPart}
             </View>
           ) : (

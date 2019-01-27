@@ -15,12 +15,11 @@ import { Font } from "expo";
 
 import { LinearGradient } from "expo";
 import { TouchableHighlight } from "react-native";
+
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+//import MyOrdersModal from "./MyOrdersModal";
 
-import MyOrdersModal from "./MyOrdersModal";
-import MainModal from "../newOrders/MainModal";
-
-class MyOrdersList extends Component {
+class MyHistoryList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -42,10 +41,10 @@ class MyOrdersList extends Component {
   handlePress = () => {
     const { allProps } = this.props;
     console.log(allProps);
-    this.props.nav.navigate("MyInfoScreen", {
+    this.props.nav.navigate("DummyInfoScreen", {
       all: allProps,
       nav: this.props.nav,
-      getFromRest: this.props.getFromRest
+      showAllData: this.props.showAllData
     });
   };
 
@@ -79,43 +78,11 @@ class MyOrdersList extends Component {
         {"\n"}
       </React.Fragment>
     ));
-
-    let modalPart = this.state.opened ? (
-      <MainModal
-        openUp={this.state.opened}
-        closed={this.handleClose}
-        order_id={this.props.allProps.id}
-        acceptNewOrder={this.props.acceptNewOrder}
-        // getFromRest={this.props.getFromRest}
-        all={this.props.allProps}
-        items={this.state.items}
-      />
-    ) : null;
-    const component1 = () => (
-      <Button
-        onPress={this.handleModal}
-        title={null}
-        buttonStyle={{
-          backgroundColor: "#8ac53f",
-          width: 300,
-          height: 45,
-          borderColor: "transparent",
-          borderWidth: 0,
-          borderRadius: 5
-        }}
-        icon={<MaterialIcons name="done-all" size={32} color="white" />}
-      />
-    );
-
-    const buttons = [{ element: component1 }];
-    // let code = allProps.status.code;
-    // const btn_status = code === "in_process" ? "Получил" : "Доставлен";
     return (
       <React.Fragment>
         {this.state.fontLoaded ? (
           <React.Fragment>
             <ListItem
-              //      contentContainerStyle={{ flex: 0.7 }}
               onPress={this.handlePress}
               title={
                 <React.Fragment>
@@ -158,45 +125,20 @@ class MyOrdersList extends Component {
                   {this.props.allProps.payment_type.title}
                 </Text>
               }
-              // leftElement={
-              //   <View
-              //     style={{
-              //       flex: 0.1,
-              //       flexDirection: "column",
-              //       borderEndWidth: 1,
-              //       borderEndColor: "red"
-              //     }}
-              //   >
-              //     <Text>{this.props.allProps.id}</Text>
-              //     <Text style={{ marginTop: "auto" }}>
-              //       {this.props.allProps.id}
-              //     </Text>
-              //   </View>
-              // }
               nav={this.props.nav}
               bottomDivider
-              buttonGroup={{
-                buttons: buttons,
-                buttonStyle: {
-                  backgroundColor: "white",
-                  borderWidth: 0
-                },
-                containerStyle: {
-                  height: 100,
-                  flex: 0.3,
-                  flexDirection: "column",
-                  borderColor: "white"
-                  //  borderRadius: 40
-                },
-                textStyle: {
-                  color: "white",
-                  fontSize: 20,
-                  fontFamily: "regular"
-                },
-                underlayColor: "red"
-              }}
+              rightElement={
+                <Text>
+                  <Text style={{ fontFamily: "regular", color: "red" }}>
+                    Статус заказа:
+                  </Text>
+                  {"\n"}
+                  <Text style={{ fontFamily: "regular" }}>
+                    {this.props.allProps.status.title}
+                  </Text>
+                </Text>
+              }
             />
-            {modalPart}
           </React.Fragment>
         ) : null}
       </React.Fragment>
@@ -204,4 +146,4 @@ class MyOrdersList extends Component {
   }
 }
 
-export default MyOrdersList;
+export default MyHistoryList;

@@ -23,6 +23,9 @@ const BG_IMAGE = require("../assets/images/loader.png");
 const LOGO = require("../assets/images/logo-evos.png");
 const IMAGE_SIZE = SCREEN_WIDTH - 80;
 
+import * as Animatable from "react-native-animatable";
+MyCustomComponent = Animatable.createAnimatableComponent(Image);
+
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
@@ -281,7 +284,17 @@ class Dashboard extends React.Component {
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <Image source={BG_IMAGE} style={styles.loaderStyle} />
+            <View style={{ flex: 0.3 }}>
+              <MyCustomComponent
+                onLoad={this._cacheResourcesAsync}
+                style={{ flex: 1 }}
+                resizeMode="contain"
+                source={BG_IMAGE}
+                animation="pulse"
+                iterationCount="infinite"
+                direction="alternate"
+              />
+            </View>
           </View>
         )}
       </SafeAreaView>

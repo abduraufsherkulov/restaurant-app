@@ -19,7 +19,7 @@ import axios from "axios";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-class InfoScreenTitle extends Component {
+class DummyInfoScreenTitle extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -57,7 +57,7 @@ class InfoScreenTitle extends Component {
   }
 }
 
-class InfoScreen extends Component {
+class DummyInfoScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -123,7 +123,7 @@ class InfoScreen extends Component {
 
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
-      <InfoScreenTitle
+      <DummyInfoScreenTitle
         navigation={navigation}
         main_id={navigation.getParam("all").id}
       />
@@ -155,44 +155,9 @@ class InfoScreen extends Component {
   render() {
     let allVal = this.props.navigation.getParam("all");
     let nav = this.props.navigation.getParam("nav");
-    let dummy = this.props.navigation.getParam("dummy");
     let acceptNewOrder = this.props.navigation.getParam("acceptNewOrder");
     // console.log(this.state.items);
     let listProducts = this.state.fontLoaded
-      ? allVal.items.map((l, i) => (
-          <View key={l.food_id}>
-            <CheckBox
-              title={
-                <Text
-                  style={{
-                    color: "red",
-                    flex: 1,
-                    fontFamily: "regular",
-                    fontSize: 20
-                  }}
-                >
-                  {l.food_title}
-                </Text>
-              }
-              containerStyle={{
-                flex: 1,
-                justifyContent: "space-between",
-                padding: 20
-              }}
-              iconRight
-              right
-              iconType="ionicon"
-              checkedIcon="ios-checkbox-outline"
-              uncheckedIcon="ios-square-outline"
-              checkedColor="#8ac53f"
-              onPress={() => this.checkItems(l.food_id, i)}
-              checked={this.state.items[i].checked}
-            />
-          </View>
-        ))
-      : null;
-
-    let listDummyProducts = this.state.fontLoaded
       ? allVal.items.map((l, i) => (
           <View key={l.food_id}>
             <ListItem
@@ -213,70 +178,29 @@ class InfoScreen extends Component {
                 justifyContent: "space-between",
                 padding: 20
               }}
+              iconType="ionicon"
+              checkedIcon="ios-checkbox-outline"
+              uncheckedIcon="ios-square-outline"
+              checkedColor="#8ac53f"
+              //   onPress={() => this.checkItems(l.food_id, i)}
+              //   checked={this.state.items[i].checked}
             />
           </View>
         ))
       : null;
-    let showProducts = dummy ? listDummyProducts : listProducts;
-    let modalPart = this.state.opened ? (
-      <MainModal
-        nav={nav}
-        openUp={this.state.opened}
-        closed={this.handleClose}
-        order_id={allVal.id}
-        acceptNewOrder={acceptNewOrder}
-        //  getFromRest={this.props.getFromRest}
-        all={allVal}
-        items={this.state.items}
-      />
-    ) : null;
     return (
       <ScrollView>
         <View style={{ flex: 1 }}>
           {this.state.fontLoaded ? (
             <View style={{ flex: 1, marginTop: 5 }}>
-              <View>{showProducts}</View>
+              <View>{listProducts}</View>
               <View
                 style={{
                   flex: 0.4,
                   justifyContent: "center",
                   alignItems: "center"
                 }}
-              >
-                {dummy ? null : (
-                  <Button
-                    containerStyle={{ marginVertical: 20 }}
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      alignItems: "center"
-                    }}
-                    buttonStyle={{
-                      height: 45,
-                      width: SCREEN_WIDTH - 80,
-                      borderRadius: 30,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: "#8ac53f"
-                    }}
-                    // linearGradientProps={{
-                    //   colors: ["rgba(214,116,112,1)", "rgba(233,174,87,1)"],
-                    //   start: [1, 0],
-                    //   end: [0.2, 0]
-                    // }}
-                    title={"Отправить"}
-                    titleStyle={{
-                      fontFamily: "regular",
-                      fontSize: 20,
-                      color: "white",
-                      textAlign: "center"
-                    }}
-                    onPress={this.handleModal}
-                    activeOpacity={0.5}
-                  />
-                )}
-              </View>
-              {modalPart}
+              />
             </View>
           ) : (
             <View
@@ -311,4 +235,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default InfoScreen;
+export default DummyInfoScreen;

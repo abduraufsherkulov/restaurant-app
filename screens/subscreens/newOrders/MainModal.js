@@ -8,7 +8,7 @@ import {
   StyleSheet,
   AsyncStorage
 } from "react-native";
-import { Button } from "react-native-elements";
+import { Button, Input } from "react-native-elements";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 
@@ -19,7 +19,11 @@ class MainModal extends Component {
     this.state = {
       loading: false,
       token: "",
-      rejectItems: ""
+      rejectItems: "",
+      time: "",
+      password: "",
+      time_valid: true,
+      order_id: ""
     };
 
     _isMounted = false;
@@ -48,20 +52,8 @@ class MainModal extends Component {
     });
     let stat = this.state.rejectItems.length > 0 ? "reject" : "accept";
 
-    // if (typeof this.props.items !== "undefined") {
-    //   let numb = this.props.items.find(j => j.checked === false);
-    //   status = typeof numb === "object" ? "reject" : "accept";
-    //   let myArr = [];
-    //   this.props.items.forEach(function(element) {
-    //     if (element.checked === false) {
-    //       myArr.push(element.food_id);
-    //     }
-    //   });
-    //   let rejectItems = myArr.join();
-    //   console.log(rejectItems);
-    // }
-
     if (stat === "reject") {
+      console.log("rejected");
       const data = JSON.stringify({
         order_id: this.state.order_id,
         removedItems: this.state.rejectItems
@@ -94,37 +86,171 @@ class MainModal extends Component {
           console.log(error);
         });
     } else if (stat === "accept") {
-      const data = JSON.stringify({
-        order_id: this.state.order_id
-      });
-      const url = "https://api.delivera.uz/entity/accept";
-      axios({
-        method: "post",
-        url: url,
-        data: data,
-        auth: {
-          username: "delivera",
-          password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
-        },
-        headers: {
-          "content-type": "application/json",
-          token: this.state.token
-        }
-      })
-        .then(response => {
-          if (response.data.reason === "Accepted") {
-            // this.props.closed();
-            this.props.acceptNewOrder();
+      if (
+        this.props.all.payment_type.code === "cash" &&
+        this.props.all.status.code === "new"
+      ) {
+        let numb = parseInt(this.state.time);
 
-            this.setState({
-              loading: false
-            });
-            this.props.nav.navigate("MainOrders");
+        const data = JSON.stringify({
+          order_id: this.props.order_id,
+          period: numb
+        });
+        const url = "https://api.delivera.uz/entity/accept-to-process";
+        axios({
+          method: "post",
+          url: url,
+          data: data,
+          auth: {
+            username: "delivera",
+            password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+          },
+          headers: {
+            "content-type": "application/json",
+            token: this.state.token
           }
         })
-        .catch(error => {
-          console.log(error.response);
+          .then(response => {
+            if (response.data.reason === "Accepted") {
+              // this.props.closed();
+              this.props.acceptNewOrder();
+
+              this.setState({
+                loading: false
+              });
+              this.props.nav.navigate("MainOrders");
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+          });
+      } else if (
+        this.props.all.payment_type.code === "cash" &&
+        this.props.all.status.code === "paid"
+      ) {
+        if (this.state.time.length === 0 || this.state.time === 0) {
+          this.setState({
+            time_valid: false,
+            loading: false
+          });
+        } else {
+          let numb = parseInt(this.state.time);
+
+          const data = JSON.stringify({
+            order_id: this.props.order_id,
+            period: numb
+          });
+          const url = "https://api.delivera.uz/entity/accept-to-process";
+          axios({
+            method: "post",
+            url: url,
+            data: data,
+            auth: {
+              username: "delivera",
+              password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+            },
+            headers: {
+              "content-type": "application/json",
+              token: this.state.token
+            }
+          })
+            .then(response => {
+              console.log(response.data, "first");
+              if (response.data.reason === "Accepted") {
+                // this.props.closed();
+                this.props.acceptNewOrder();
+
+                this.setState({
+                  loading: false
+                });
+                this.props.nav.navigate("MainOrders");
+              }
+            })
+            .catch(error => {
+              console.log(error.response);
+            });
+        }
+      } else if (
+        this.props.all.payment_type.code === "payme" &&
+        this.props.all.status.code === "paid"
+      ) {
+        if (this.state.time.length === 0 || this.state.time === 0) {
+          this.setState({
+            time_valid: false,
+            loading: false
+          });
+        } else {
+          let numb = parseInt(this.state.time);
+
+          const data = JSON.stringify({
+            order_id: this.props.order_id,
+            period: numb
+          });
+          const url = "https://api.delivera.uz/entity/accept-to-process";
+          axios({
+            method: "post",
+            url: url,
+            data: data,
+            auth: {
+              username: "delivera",
+              password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+            },
+            headers: {
+              "content-type": "application/json",
+              token: this.state.token
+            }
+          })
+            .then(response => {
+              console.log(response.data, "first");
+              if (response.data.reason === "Accepted") {
+                // this.props.closed();
+                this.props.acceptNewOrder();
+
+                this.setState({
+                  loading: false
+                });
+                this.props.nav.navigate("MainOrders");
+              }
+            })
+            .catch(error => {
+              console.log(error.response);
+            });
+        }
+      } else {
+        const data = JSON.stringify({
+          order_id: this.state.order_id
         });
+        console.log(data);
+        const url = "https://api.delivera.uz/entity/accept";
+        axios({
+          method: "post",
+          url: url,
+          data: data,
+          auth: {
+            username: "delivera",
+            password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+          },
+          headers: {
+            "content-type": "application/json",
+            token: this.state.token
+          }
+        })
+          .then(response => {
+            console.log(response.data, "sec");
+            if (response.data.reason === "Accepted") {
+              // this.props.closed();
+              this.props.acceptNewOrder();
+
+              this.setState({
+                loading: false
+              });
+              this.props.nav.navigate("MainOrders");
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+          });
+      }
     }
 
     event.preventDefault();
@@ -134,7 +260,48 @@ class MainModal extends Component {
   }
 
   render() {
-    console.log(this.state);
+    // console.log(this.props.all);
+    const { time, time_valid } = this.state;
+    let code = this.props.all.payment_type.code;
+    let status = this.props.all.status.code;
+    let confirm_input =
+      code === "cash" || status === "paid" ? (
+        <Input
+          leftIcon={
+            <FontAwesome
+              name="clock-o"
+              color="rgba(171, 189, 219, 1)"
+              size={25}
+            />
+          }
+          containerStyle={{ marginVertical: 10 }}
+          onChangeText={time => this.setState({ time: time, time_valid: true })}
+          value={time}
+          inputStyle={{ marginLeft: 10, color: "rgba(47,44,60,1)" }}
+          keyboardAppearance="light"
+          keyboardType="numeric"
+          placeholder="32"
+          autoFocus={false}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="next"
+          blurOnSubmit={false}
+          placeholderTextColor="rgba(126,123,138,1)"
+          errorStyle={{ textAlign: "center", fontSize: 12 }}
+          errorMessage={time_valid ? null : "Время должно быть больше нуля!"}
+        />
+      ) : null;
+    let text_ask =
+      code === "payme" && status === "new" ? (
+        <Text style={{ fontSize: 20 }}>
+          Вы уверены, что вы получили заказ от {this.props.entity_name}?{" "}
+        </Text>
+      ) : (
+        <Text style={{ fontSize: 20 }}>
+          Расчетное время, когда еда будет готова.:
+        </Text>
+      );
+    let okay_btn = code === "in_process" ? "Получил" : "Доставил";
     return (
       <Modal
         animationType="slide"
@@ -150,9 +317,8 @@ class MainModal extends Component {
             padding: 20
           }}
         >
-          <Text style={{ fontSize: 20 }}>
-            Вы уверены, что хотите принять заказ от {this.props.entity_name}?{" "}
-          </Text>
+          {text_ask}
+          {confirm_input}
 
           <View
             style={{

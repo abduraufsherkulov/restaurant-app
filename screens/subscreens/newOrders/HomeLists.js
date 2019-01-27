@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 
 import moment from "moment";
 import {
@@ -7,20 +7,25 @@ import {
   Tile,
   ListItem,
   Avatar,
-  View,
-  Input
+  Input,
+  Button
 } from "react-native-elements";
+
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+
+import { View } from "react-native";
 
 import { Font } from "expo";
 import MainModal from "./MainModal";
 
-class HomeLists extends Component {
+class HomeLists extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       opened: false,
       fontLoaded: false,
-      items: []
+      items: [],
+      selectedIndex: null
     };
   }
   handleModal = () => {
@@ -40,7 +45,18 @@ class HomeLists extends Component {
     this.props.nav.navigate("InfoScreen", {
       all: allProps,
       nav: this.props.nav,
-      acceptNewOrder: this.props.acceptNewOrder
+      acceptNewOrder: this.props.acceptNewOrder,
+      dummy: true
+    });
+  };
+  handlePressButton = () => {
+    const { allProps } = this.props;
+    console.log(allProps);
+    this.props.nav.navigate("InfoScreen", {
+      all: allProps,
+      nav: this.props.nav,
+      acceptNewOrder: this.props.acceptNewOrder,
+      dummy: false
     });
   };
   async componentDidMount() {
@@ -59,18 +75,26 @@ class HomeLists extends Component {
       fontLoaded: true
     });
   }
+
   render() {
+    let tickBool = this.props.allProps.payment_type.code;
     let listProducts = this.props.allProps.items.map((l, i) => (
-      <Text key={l.food_id} style={{ fontFamily: "regular", fontSize: 18 }}>
-        {l.food_title}{" "}
+      <React.Fragment key={l.food_id}>
         <Text
-          style={{
-            color: "red"
-          }}
+          style={{ fontFamily: "regular", fontSize: 18, alignSelf: "stretch" }}
         >
-          x {l.food_amount}
+          {l.food_title}{" "}
+          <Text
+            style={{
+              color: "red",
+              fontFamily: "regular"
+            }}
+          >
+            x {l.food_amount}
+          </Text>
         </Text>
-      </Text>
+        {"\n"}
+      </React.Fragment>
     ));
 
     let modalPart = this.state.opened ? (
@@ -84,38 +108,114 @@ class HomeLists extends Component {
         items={this.state.items}
       />
     ) : null;
+
+    const component1 = () => (
+      <Button
+        onPress={this.handleModal}
+        title={null}
+        buttonStyle={{
+          backgroundColor: "#8ac53f",
+          width: 300,
+          height: 45,
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 5
+        }}
+        icon={
+          tickBool === "cash" ? (
+            <MaterialIcons name="done-all" size={32} color="white" />
+          ) : (
+            <FontAwesome name="check" size={32} color="white" />
+          )
+        }
+      />
+    );
+
+    const component2 = () => (
+      <Button
+        onPress={this.handlePressButton}
+        title={null}
+        buttonStyle={{
+          backgroundColor: "rgba(199, 43, 98, 1)",
+          width: 300,
+          height: 45,
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 5
+        }}
+        icon={<FontAwesome name="remove" size={32} color="white" />}
+      />
+    );
+    const buttons = [{ element: component1 }, { element: component2 }];
     return (
       <React.Fragment>
         {this.state.fontLoaded ? (
           <React.Fragment>
             <ListItem
-              contentContainerStyle={{ flex: 0.7 }}
+              //      contentContainerStyle={{ flex: 0.7 }}
               onPress={this.handlePress}
-              title={<React.Fragment>{listProducts}</React.Fragment>}
-              subtitle={this.props.allProps.order_type}
-              chevron
+              title={
+                <React.Fragment>
+                  <Text
+                    style={{
+                      alignSelf: "center",
+                      fontFamily: "regular",
+                      fontSize: 20
+                    }}
+                  >
+                    {this.props.allProps.id}
+                  </Text>
+                  <Text
+                    style={{
+                      paddingTop: 15,
+                      paddingBottom: 15,
+                      borderTopWidth: 1,
+                      borderTopColor: "#a7bdb6",
+                      borderBottomWidth: 1,
+                      borderBottomColor: "#a7bdb6"
+                    }}
+                  >
+                    {listProducts}
+                  </Text>
+                </React.Fragment>
+              }
+              subtitle={
+                <Text
+                  style={{
+                    fontFamily: "regular",
+                    color: "gray",
+                    paddingTop: 10
+                  }}
+                >
+                  {this.props.allProps.payment_type.title === "PAYME" ? (
+                    <FontAwesome name="credit-card" size={25} />
+                  ) : (
+                    <FontAwesome name="money" size={25} color="#8ac53f" />
+                  )}{" "}
+                  {this.props.allProps.payment_type.title}
+                </Text>
+              }
               nav={this.props.nav}
               bottomDivider
               buttonGroup={{
-                buttons: ["Принят"],
-                onPress: this.handleModal,
+                buttons: buttons,
                 buttonStyle: {
-                  backgroundColor: "#8ac53f"
+                  backgroundColor: "white",
+                  borderWidth: 0
                 },
                 containerStyle: {
+                  height: 100,
                   flex: 0.3,
-                  height: 70,
-                  borderRadius: 40
+                  flexDirection: "column",
+                  borderColor: "white"
+                  //  borderRadius: 40
                 },
                 textStyle: {
                   color: "white",
                   fontSize: 20,
                   fontFamily: "regular"
                 },
-                style: {
-                  fontSize: 20,
-                  color: "red"
-                }
+                underlayColor: "red"
               }}
             />
             {modalPart}

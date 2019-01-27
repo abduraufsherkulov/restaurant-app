@@ -33,9 +33,31 @@ class MyOrders extends React.Component {
     this.props.navigation.navigate("MyInfoScreen", {});
   };
   render() {
+    let homeMainRender =
+      this.props.screenProps.myOrdersList.length > 0 ? (
+        this.props.screenProps.myOrdersList.map((l, i) => (
+          <MyOrdersList
+            getFromRest={this.props.screenProps.getFromRest}
+            handlePress={this.handlePress}
+            key={l.id}
+            nav={this.props.navigation}
+            allProps={l}
+          />
+        ))
+      ) : (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Text style={{ flex: 1 }}>На данный момент нет заказов.</Text>
+        </View>
+      );
     return (
-      <SafeAreaView forceInset={{ horizontal: "always", top: "always" }}>
+      <SafeAreaView
+        style={{ flex: 1 }}
+        forceInset={{ horizontal: "always", top: "always" }}
+      >
         <ScrollView
+          contentContainerStyle={{ flex: 1 }}
           refreshControl={
             <RefreshControl
               refreshing={this.props.screenProps.refreshState}
@@ -49,18 +71,7 @@ class MyOrders extends React.Component {
             />
           }
         >
-          <View style={styles.list}>
-            {this.props.screenProps.myOrdersList.map((l, i) => (
-              <MyOrdersList
-                key={l.id}
-                getFromRest={this.props.screenProps.getFromRest}
-                handlePress={this.handlePress}
-                key={l.id}
-                nav={this.props.navigation}
-                allProps={l}
-              />
-            ))}
-          </View>
+          <View style={styles.list}>{homeMainRender}</View>
         </ScrollView>
       </SafeAreaView>
     );
@@ -72,6 +83,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   list: {
+    flex: 1,
     marginTop: 0,
     borderColor: "#FD6B78",
     backgroundColor: "#fff"
