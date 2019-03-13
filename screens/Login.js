@@ -5,17 +5,20 @@ import {
   Text,
   View,
   Dimensions,
-  ImageBackground,
-  Platform
+  Keyboard,
+  Platform,
+  Image,
+  StatusBar,
+  Animated
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 import { Input, Button } from "react-native-elements";
 import { Font, Permissions, Notifications } from "expo";
 import axios from "axios";
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
-const BG_IMAGE = require("../assets/images/wallpaper_3.jpg");
+const BG_IMAGE = require("../assets/images/logo.png");
 
 async function registerForPushNotificationsAsync() {
   const { status: existingStatus } = await Permissions.getAsync(
@@ -69,7 +72,8 @@ export default class Login extends React.Component {
       platform: Platform.OS,
       app_version: Platform.Version,
       device_info: Expo.Constants.deviceName,
-      device_uuid: Expo.Constants.installationId
+      device_uuid: Expo.Constants.installationId,
+      moveAnim: new Animated.Value(200)
     };
   }
 
@@ -123,6 +127,7 @@ export default class Login extends React.Component {
             });
           } else {
             let token = response.data;
+            console.log(token.access_token);
             await AsyncStorage.setItem("access_token", token.access_token);
             let entity_info = token.entity_info;
             await AsyncStorage.multiSet([
@@ -153,9 +158,26 @@ export default class Login extends React.Component {
     });
   };
   async componentDidMount() {
-    this._createNotificationAsync();
+    this.keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      this._keyboardDidShow
+    );
+    this.keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      this._keyboardDidHide
+    );
+
+    // this._createNotificationAsync();
     if (Platform.OS === "android") {
       Expo.Notifications.createChannelAndroidAsync("new", {
+        name: "Delivera Business",
+        priority: "max",
+        vibrate: [0, 250, 250, 250],
+        sound: true
+      });
+    }
+    if (Platform.OS === "android") {
+      Expo.Notifications.createChannelAndroidAsync("paid", {
         name: "Delivera Business",
         priority: "max",
         vibrate: [0, 250, 250, 250],
@@ -166,116 +188,161 @@ export default class Login extends React.Component {
     let token = await Notifications.getExpoPushTokenAsync();
 
     await Font.loadAsync({
-      regular: require("../assets/fonts/Montserrat-Regular.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf"),
+      bold: require("../assets/fonts/GoogleSans-Bold.ttf")
     });
     this.setState({ fontLoaded: true, token: token });
   }
+  _keyboardDidShow = () => {
+    Animated.timing(
+      // Animate over time
+      this.state.moveAnim, // The animated value to drive
+      {
+        toValue: 20, // Animate to opacity: 1 (opaque)
+        duration: 1 // Make it take a while
+      }
+    ).start();
+    console.log(this.state.moveAnim);
+  };
 
+  _keyboardDidHide = () => {
+    Animated.timing(
+      // Animate over time
+      this.state.moveAnim, // The animated value to drive
+      {
+        toValue: 200, // Animate to opacity: 1 (opaque)
+        duration: 1 // Make it take a while
+      }
+    ).start();
+    console.log(this.state.moveAnim);
+  };
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
   render() {
-    const { username, password, username_valid, showLoading } = this.state;
+    const {
+      username,
+      password,
+      username_valid,
+      showLoading,
+      moveAnim
+    } = this.state;
     return (
       <View style={styles.container}>
-        <ImageBackground source={BG_IMAGE} style={styles.bgImage}>
-          {this.state.fontLoaded ? (
-            <View style={styles.loginView}>
-              <View style={styles.loginTitle}>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.travelText}>Вход </Text>
-                  <Text style={styles.plusText}>в</Text>
-                </View>
-                <View style={{ marginTop: -10 }}>
-                  <Text style={styles.travelText}>Кабинет</Text>
-                </View>
-              </View>
-              <View style={styles.loginInput}>
-                <Input
-                  leftIcon={
-                    <Icon
-                      name="user-o"
-                      color="rgba(171, 189, 219, 1)"
-                      size={25}
-                    />
-                  }
-                  containerStyle={{ marginVertical: 10 }}
-                  onChangeText={username =>
-                    this.setState({ username: username, username_valid: true })
-                  }
-                  value={username}
-                  inputStyle={{
-                    marginLeft: 10,
-                    color: "white",
-                    fontFamily: "regular"
-                  }}
-                  keyboardAppearance="light"
-                  placeholder="Username"
-                  autoFocus={false}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="next"
-                  ref={input => (this.usernameInput = input)}
-                  onSubmitEditing={() => {
-                    this.passwordInput.focus();
-                  }}
-                  blurOnSubmit={false}
-                  placeholderTextColor="white"
-                  errorStyle={{ textAlign: "center", fontSize: 12 }}
-                  errorMessage={
-                    username_valid
-                      ? null
-                      : "Пожалуйста введите действительное имя пользователя"
-                  }
-                />
-                <Input
-                  leftIcon={
-                    <Icon
-                      name="lock"
-                      color="rgba(171, 189, 219, 1)"
-                      size={25}
-                    />
-                  }
-                  containerStyle={{ marginVertical: 10 }}
-                  onChangeText={password =>
-                    this.setState({ password: password, username_valid: true })
-                  }
-                  value={password}
-                  inputStyle={{
-                    marginLeft: 10,
-                    color: "white",
-                    fontFamily: "regular"
-                  }}
-                  secureTextEntry={true}
-                  keyboardAppearance="light"
-                  placeholder="Password"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="default"
-                  returnKeyType="done"
-                  ref={input => (this.passwordInput = input)}
-                  blurOnSubmit={true}
-                  placeholderTextColor="white"
-                />
-              </View>
+        {this.state.fontLoaded ? (
+          <Animated.View
+            style={{
+              backgroundColor: "transparent",
+              width: 280,
+              height: 300,
+              position: "absolute",
+              bottom: moveAnim
+            }}
+          >
+            <View style={styles.loginInput}>
+              <Image source={BG_IMAGE} style={{ marginBottom: 40 }} />
+              <Input
+                leftIcon={<FontAwesome name="user" color="#5caa57" size={25} />}
+                containerStyle={{ marginBottom: 30, width: "100%" }}
+                onChangeText={username =>
+                  this.setState({ username: username, username_valid: true })
+                }
+                value={username}
+                inputStyle={{
+                  color: "#494949",
+                  fontFamily: "regular",
+                  fontSize: 16
+                }}
+                inputContainerStyle={{
+                  height: 45,
+                  borderWidth: 1,
+                  borderColor: "#f4f4f4",
+                  borderRadius: 28,
+                  backgroundColor: "#f4f4f4"
+                }}
+                keyboardAppearance="light"
+                placeholder="Логин"
+                autoFocus={false}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="next"
+                ref={input => (this.usernameInput = input)}
+                onSubmitEditing={() => {
+                  this.passwordInput.focus();
+                }}
+                blurOnSubmit={false}
+                placeholderTextColor="white"
+                errorStyle={{ textAlign: "center", fontSize: 12 }}
+                errorMessage={
+                  username_valid
+                    ? null
+                    : "Пожалуйста введите действительное имя пользователя"
+                }
+                placeholderTextColor="#494949"
+              />
+              <Input
+                leftIcon={<FontAwesome name="lock" color="#5caa57" size={25} />}
+                containerStyle={{ marginBottom: 30, width: "100%" }}
+                onChangeText={password =>
+                  this.setState({ password: password, username_valid: true })
+                }
+                value={password}
+                inputStyle={{
+                  color: "#494949",
+                  fontFamily: "regular",
+                  fontSize: 16
+                }}
+                inputContainerStyle={{
+                  height: 45,
+                  borderWidth: 1,
+                  borderColor: "#f4f4f4",
+                  borderRadius: 28,
+                  backgroundColor: "#f4f4f4"
+                }}
+                onSubmitEditing={Keyboard.dismiss}
+                secureTextEntry={true}
+                keyboardAppearance="light"
+                placeholder="Пароль"
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="default"
+                returnKeyType="done"
+                ref={input => (this.passwordInput = input)}
+                blurOnSubmit={true}
+                placeholderTextColor="#494949"
+              />
+
               <Button
-                title="Войти в систему"
-                activeOpacity={1}
-                underlayColor="transparent"
+                type="solid"
+                title="ПОЕХАЛИ"
+                // activeOpacity={1}
+                // underlayColor="transparent"
                 onPress={this.handleSubmit}
                 loading={showLoading}
+                // containerStyle={{ height: 45, borderRadius: 28 }}
                 loadingProps={{ size: "small", color: "white" }}
                 disabled={!username_valid && password.length < 8}
                 buttonStyle={styles.buttonMainStyle}
-                containerStyle={{ marginVertical: 10 }}
+                // containerStyle={{ marginVertical: 10 }}
                 titleStyle={{
                   color: "white",
                   fontSize: 20,
-                  fontFamily: "regular"
+                  fontFamily: "bold"
                 }}
               />
             </View>
-          ) : (
-            <Text>Loading...</Text>
-          )}
-        </ImageBackground>
+          </Animated.View>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={require("../assets/loader.gif")}
+            />
+          </View>
+        )}
       </View>
     );
   }
@@ -283,54 +350,39 @@ export default class Login extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
-  },
-  bgImage: {
     flex: 1,
     top: 0,
     left: 0,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
-    justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor: "white"
   },
   loginView: {
-    marginTop: -150,
+    // marginTop: -1,
     backgroundColor: "transparent",
-    width: 250,
-    height: 400
+    width: 280,
+    height: 300,
+    position: "absolute",
+    bottom: 200
   },
   loginTitle: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
   },
-  travelText: {
-    color: "white",
-    fontSize: 30,
-    fontFamily: "regular"
-  },
-  plusText: {
-    color: "white",
-    fontSize: 30
-  },
   loginInput: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
   },
-  footerView: {
-    marginTop: 20,
-    flex: 0.5,
-    justifyContent: "center",
-    alignItems: "center"
-  },
   buttonMainStyle: {
-    height: 50,
-    width: 250,
-    backgroundColor: "transparent",
+    height: 45,
+    width: 280,
+    backgroundColor: "#5caa57",
     borderWidth: 2,
     borderColor: "white",
-    borderRadius: 30
+    borderRadius: 28,
+    elevation: 0
   }
 });

@@ -1,342 +1,588 @@
-import React from "react";
+import React, { Component } from "react";
+import { SafeAreaView } from "react-navigation";
+import moment from "moment";
 import {
   AsyncStorage,
-  StyleSheet,
-  Text,
   View,
-  SafeAreaView,
-  Image,
-  ScrollView,
-  Dimensions,
   StatusBar,
-  Platform
+  StyleSheet,
+  Platform,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  RefreshControl,
+  DatePickerAndroid
 } from "react-native";
-
-import { Button } from "react-native-elements";
+import axios from "axios";
+import { Entypo } from "@expo/vector-icons";
+import { Text, Button } from "react-native-elements";
 import { Font } from "expo";
+import { BarChartMain, PieChart, PieChartMain } from "./Statistics";
 const isAndroid = Platform.OS === "android";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const SCREEN_HEIGHT = Dimensions.get("window").height;
+import {
+  NavigationLogo,
+  Phone,
+  Lock,
+  RectangleDivider,
+  HorizontalDivider
+} from "../assets/images/MainSvg";
 
-const BG_IMAGE = require("../assets/images/loader.png");
-const LOGO = require("../assets/images/logo-evos.png");
-const IMAGE_SIZE = SCREEN_WIDTH - 80;
+class MyDashboardTitle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fontLoaded: false
+    };
+  }
+  render() {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <NavigationLogo />
+      </View>
+    );
+  }
+}
 
-import * as Animatable from "react-native-animatable";
-MyCustomComponent = Animatable.createAnimatableComponent(Image);
-
-class Dashboard extends React.Component {
+class Dashboard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      fontLoaded: false,
       username: "",
       full_name: "",
-      phone: ""
+      phone: "",
+      token: "",
+      loading: true,
+      showLoading: false,
+      today: moment(new Date()).format("DD.MM.YY"),
+      year: moment(new Date()).format("YYYY"),
+      month: moment(new Date()).format("MM"),
+      day: moment(new Date()).format("DD"),
+      graphLoading: true,
+      pieValue: [
+        {
+          key: 1,
+          amount: 50,
+          svg: { fill: "#d499d0" }
+        },
+        {
+          key: 2,
+          amount: 50,
+          svg: { fill: "#ea8684" }
+        },
+        {
+          key: 3,
+          amount: 40,
+          svg: { fill: "#f2d283" }
+        },
+        {
+          key: 4,
+          amount: 95,
+          svg: { fill: "#92ccf1" }
+        },
+        {
+          key: 5,
+          amount: 35,
+          svg: { fill: "#ecb3ff" }
+        },
+        {
+          key: 6,
+          amount: 35,
+          svg: { fill: "#5caa57" }
+        }
+      ],
+      graphValue: [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
     };
   }
 
   async componentDidMount() {
     await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf"),
+      medium: require("../assets/fonts/GoogleSans-Medium.ttf")
     });
-    await AsyncStorage.multiGet(["username", "full_name", "phone"]).then(
-      response => {
-        this.setState({
-          username: response[0][1],
-          full_name: response[1][1],
-          phone: response[2][1]
-        });
+    let token = await AsyncStorage.getItem("access_token");
+
+    const data = JSON.stringify({
+      year: this.state.year,
+      month: this.state.month,
+      day: this.state.day
+    });
+
+    const getGraph = "https://api.delivera.uz/entity/get-graph-data";
+    axios({
+      method: "post",
+      url: getGraph,
+      data: data,
+      auth: {
+        username: "delivera",
+        password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+      },
+      headers: {
+        "content-type": "application/json",
+        token: token
       }
-    );
-    this.setState({
-      fontLoaded: true
-    });
+    })
+      .then(async response => {
+        // console.log(response.data);
+        let graphVal = await response.data;
+        await AsyncStorage.multiGet(["username", "full_name", "phone"]).then(
+          response => {
+            this.setState({
+              username: response[0][1],
+              full_name: response[1][1],
+              phone: response[2][1],
+              token: token,
+              graphValue: graphVal
+            });
+          }
+        );
+        // console.log(response.data.orders);
+      })
+      .catch(error => {
+        console.log(error, "error");
+      });
+    const getPie = "https://api.delivera.uz/entity/get-pie-data";
+    axios({
+      method: "post",
+      url: getPie,
+      data: data,
+      auth: {
+        username: "delivera",
+        password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+      },
+      headers: {
+        "content-type": "application/json",
+        token: token
+      }
+    })
+      .then(response => {
+        if (response.data.length === 0) {
+          this.setState({
+            loading: false,
+            graphLoading: false
+          });
+        } else {
+          this.setState({
+            loading: false,
+            pieValue: response.data,
+            graphLoading: false
+          });
+        }
+
+        // console.log(response.data.orders);
+      })
+      .catch(error => {
+        console.log(error, "error");
+      });
   }
 
   _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate("Auth");
+    this.setState({
+      loading: true
+    });
+    const urlLogout = "https://api.delivera.uz/entity/logout";
+    axios({
+      method: "post",
+      url: urlLogout,
+      auth: {
+        username: "delivera",
+        password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+      },
+      headers: {
+        "content-type": "application/json",
+        token: this.state.token
+      }
+    })
+      .then(response => {
+        this.setState(
+          {
+            loading: false
+          },
+          async () => {
+            await AsyncStorage.clear();
+            this.props.navigation.navigate("Auth");
+          }
+        );
+        // console.log(response.data.orders);
+      })
+      .catch(error => {
+        console.log(error, "error");
+      });
   };
 
+  static navigationOptions = ({ navigation }) => ({
+    headerTitle: <MyDashboardTitle />,
+    headerStyle: {
+      backgroundColor: "white",
+      paddingTop: 0,
+      height: 60
+    },
+    headerTitleStyle: { color: "rgba(126,123,138,1)" },
+    headerLeftContainerStyle: {
+      padding: 0
+    },
+    headerTitleContainerStyle: {
+      padding: 0
+    },
+    headerForceInset: { top: "never", bottom: "never" }
+  });
+
+  handleDate = async () => {
+    try {
+      const { action, year, month, day } = await DatePickerAndroid.open({
+        // Use `new Date()` for current date.
+        // May 25 2020. Month 0 is January.new Date(2020, 4, 25)
+        date: new Date()
+      });
+      if (action !== DatePickerAndroid.dismissedAction) {
+        this.setState(
+          {
+            today: moment(new Date(year, month, day)).format("DD.MM.YY"),
+            year,
+            month,
+            day,
+            graphLoading: true
+          },
+          () => {
+            const data = JSON.stringify({
+              year: this.state.year,
+              month: this.state.month,
+              day: this.state.day
+            });
+            const urlLogout = "https://api.delivera.uz/entity/get-graph-data";
+            axios({
+              method: "post",
+              url: urlLogout,
+              data: data,
+              auth: {
+                username: "delivera",
+                password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+              },
+              headers: {
+                "content-type": "application/json",
+                token: this.state.token
+              }
+            })
+              .then(response => {
+                // console.log(response.data);
+                this.setState({
+                  graphValue: response.data
+                });
+                // console.log(response.data.orders);
+              })
+              .catch(error => {
+                console.log(error, "error");
+              });
+            const urlogout = "https://api.delivera.uz/entity/get-pie-data";
+            axios({
+              method: "post",
+              url: urlogout,
+              data: data,
+              auth: {
+                username: "delivera",
+                password: "X19WkHHupFJBPsMRPCJwTbv09yCD50E2"
+              },
+              headers: {
+                "content-type": "application/json",
+                token: this.state.token
+              }
+            })
+              .then(response => {
+                this.setState({
+                  pieValue: response.data,
+                  graphLoading: false
+                });
+                // console.log(response.data.orders);
+              })
+              .catch(error => {
+                console.log(error, "error");
+              });
+          }
+        );
+      }
+    } catch ({ code, message }) {
+      console.warn("Cannot open date picker", message);
+    }
+  };
   render() {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <StatusBar barStyle="light-content" />
-        {this.state.fontLoaded ? (
-          <View style={{ flex: 1, backgroundColor: "white" }}>
-            <View style={styles.statusBar} />
-            <View style={styles.navBar}>
-              <Text style={styles.nameHeader}>{this.state.full_name}</Text>
-            </View>
+      <React.Fragment>
+        {!this.state.loading ? (
+          <SafeAreaView
+            style={{ flex: 1 }}
+            forceInset={{ horizontal: "always", top: "never" }}
+          >
             <ScrollView style={{ flex: 1 }}>
               <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <Image
-                  source={LOGO}
-                  style={{
-                    width: IMAGE_SIZE,
-                    height: IMAGE_SIZE,
-                    borderRadius: 10
-                  }}
-                />
+                <Text style={{ fontFamily: "medium", fontSize: 20 }}>
+                  {this.state.full_name}
+                </Text>
               </View>
               <View
                 style={{
-                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
                   flexDirection: "row",
-                  marginTop: 20,
-                  marginHorizontal: 40,
-                  justifyContent: "center",
-                  alignItems: "center"
+                  paddingTop: 31,
+                  paddingBottom: 43
                 }}
               >
-                <Text
-                  style={{
-                    flex: 1,
-                    fontSize: 26,
-                    color: "rgba(47,44,60,1)",
-                    fontFamily: "bold"
-                  }}
-                >
-                  {this.state.username}
-                </Text>
-                <Text
-                  style={{
-                    flex: 0.5,
-                    fontSize: 15,
-                    color: "gray",
-                    textAlign: "left",
-                    marginTop: 5
-                  }}
-                >
-                  0.8 mi
-                </Text>
-                <Text
-                  style={{
-                    flex: 1,
-                    fontSize: 26,
-                    color: "green",
-                    fontFamily: "bold",
-                    textAlign: "right"
-                  }}
-                >
-                  84%
-                </Text>
-              </View>
-              {/* <View
-                style={{
-                  flex: 1,
-                  marginTop: 20,
-                  width: SCREEN_WIDTH - 80,
-                  marginLeft: 40
-                }}
-              >
-                <Text
-                  style={{
-                    flex: 1,
-                    fontSize: 15,
-                    color: "white",
-                    fontFamily: "regular"
-                  }}
-                >
-                  100% Italian, fun loving, affectionate, young lady who knows
-                  what it takes to make a relationship work.
-                </Text>
-              </View> */}
-              {/* <View style={{ flex: 1, marginTop: 30 }}>
-                <Text
-                  style={{
-                    flex: 1,
-                    fontSize: 15,
-                    color: "rgba(216, 121, 112, 1)",
-                    fontFamily: "regular",
-                    marginLeft: 40
-                  }}
-                >
-                  INTERESTS
-                </Text>
-              </View> */}
-              <View style={{ flex: 1, marginTop: 30 }}>
-                <Text
-                  style={{
-                    flex: 1,
-                    fontSize: 15,
-                    color: "rgba(216, 121, 112, 1)",
-                    fontFamily: "regular",
-                    marginLeft: 40
-                  }}
-                >
-                  ИНФО
-                </Text>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    marginTop: 20,
-                    marginHorizontal: 30
-                  }}
-                >
-                  <View style={{ flex: 1, flexDirection: "row" }}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.infoTypeLabel}>Ресторан</Text>
-                      <Text style={styles.infoTypeLabel}>Филиал</Text>
-                      {/* <Text style={styles.infoTypeLabel}>Номер машины</Text>
-                      <Text style={styles.infoTypeLabel}>Дата регистрации</Text> */}
-                    </View>
-                    <View style={{ flex: 1, marginLeft: 10 }}>
-                      <Text style={styles.infoAnswerLabel}>Evos</Text>
-                      <Text style={styles.infoAnswerLabel}>
-                        Westminister Dorm.
-                      </Text>
-                      {/* <Text style={styles.infoAnswerLabel}>30 A 1235</Text>
-                      <Text style={styles.infoAnswerLabel}>10.01.2019</Text> */}
-                    </View>
-                  </View>
+                <View style={styles.twoCols}>
+                  <Phone />
+                  <Text style={styles.lilTitle}>номер</Text>
+                  <Text style={styles.infoPart}>{this.state.phone}</Text>
+                  <Text style={styles.changeButton}>Изменить</Text>
                 </View>
-              </View>
-              <View style={{ flex: 1, marginTop: 30 }}>
-                <Text
-                  style={{
-                    flex: 1,
-                    fontSize: 15,
-                    color: "rgba(216, 121, 112, 1)",
-                    fontFamily: "regular",
-                    marginLeft: 40
-                  }}
-                >
-                  СТАТИСТИКА
-                </Text>
                 <View
                   style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    marginTop: 20,
-                    marginHorizontal: 15
+                    flex: 0.1,
+                    justifyContent: "center",
+                    alignItems: "center"
                   }}
                 >
-                  <View style={{ flex: 1, flexDirection: "row" }}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.infoTypeLabel}>Средний чек</Text>
-                      <Text style={styles.infoTypeLabel}>
-                        Количества заказов
-                      </Text>
-                      <Text style={styles.infoTypeLabel}>
-                        Количества заказов ср. чеке
-                      </Text>
-                      <Text style={styles.infoTypeLabel}>
-                        Ср. стоимость ср. чеке
-                      </Text>
-                    </View>
-                    <View style={{ flex: 1, marginLeft: 10 }}>
-                      <Text style={styles.infoAnswerLabel}>75 000</Text>
-                      <Text style={styles.infoAnswerLabel}>458</Text>
-                      <Text style={styles.infoAnswerLabel}>2</Text>
-                      <Text style={styles.infoAnswerLabel}>22 000</Text>
-                    </View>
-                  </View>
+                  <RectangleDivider />
+                </View>
+                <View style={styles.twoCols}>
+                  <Lock />
+                  <Text style={styles.lilTitle}>пароль</Text>
+                  <Text style={styles.infoPart}>* * * * * * *</Text>
+                  <Text style={styles.changeButton}>Изменить</Text>
                 </View>
               </View>
               <View
                 style={{
-                  flex: 1,
                   justifyContent: "center",
                   alignItems: "center"
+                }}
+              >
+                <HorizontalDivider />
+              </View>
+
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  paddingTop: 9
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "medium",
+                    fontSize: 16,
+                    color: "#707070"
+                  }}
+                >
+                  Статистика
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  paddingTop: 21,
+                  paddingBottom: 12
+                }}
+              >
+                <View style={styles.twoCols}>
+                  <Text style={styles.subTitle}>лучшая доставка</Text>
+                  <Text style={styles.subTitleInfo}>12 минут</Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 0.1,
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}
+                >
+                  <RectangleDivider />
+                </View>
+
+                <View style={styles.twoCols}>
+                  <Text style={styles.subTitle}>худшая доставка</Text>
+                  <Text style={styles.subTitleInfo}>58 минут</Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  paddingTop: 21,
+                  paddingBottom: 45
+                }}
+              >
+                <View style={styles.twoCols}>
+                  <Text style={styles.subTitle}>% бонусов</Text>
+                  <Text style={styles.subTitleInfo}>12 %</Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 0.1,
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}
+                >
+                  <RectangleDivider />
+                </View>
+
+                <View style={styles.twoCols}>
+                  <Text style={styles.subTitle}>средняя сумма заказа</Text>
+                  <Text style={styles.subTitleInfo}>18 000 сум</Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#f6f6f6"
                 }}
               >
                 <Button
-                  containerStyle={{ marginVertical: 20 }}
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center"
-                  }}
-                  buttonStyle={{
-                    height: 55,
-                    width: SCREEN_WIDTH - 40,
-                    borderRadius: 30,
-                    justifyContent: "center",
-                    alignItems: "center"
-                  }}
-                  linearGradientProps={{
-                    colors: ["rgba(214,116,112,1)", "rgba(233,174,87,1)"],
-                    start: [1, 0],
-                    end: [0.2, 0]
-                  }}
-                  title="Выход"
+                  type="solid"
+                  title="Статистика продаж"
+                  loadingProps={{ size: "small", color: "white" }}
+                  buttonStyle={styles.buttonStatStyle}
                   titleStyle={{
-                    fontFamily: "regular",
-                    fontSize: 20,
                     color: "white",
-                    textAlign: "center"
+                    fontSize: 20,
+                    fontFamily: "medium"
                   }}
+                />
+                <Text
+                  style={{
+                    paddingTop: 25,
+                    fontFamily: "regular",
+                    fontSize: 14,
+                    color: "#333333"
+                  }}
+                  onPress={this.handleDate}
+                >
+                  {this.state.today}
+                  <Entypo name="chevron-small-down" size={20} color="#333333" />
+                </Text>
+              </View>
+              <BarChartMain
+                topValues={this.state.graphValue}
+                loading={this.state.graphLoading}
+              />
+              <PieChartMain pieValues={this.state.pieValue} />
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Button
+                  type="solid"
+                  title="ВЫЙТИ"
                   onPress={this._signOutAsync}
-                  activeOpacity={0.5}
+                  loading={this.state.showLoading}
+                  loadingProps={{ size: "small", color: "white" }}
+                  buttonStyle={styles.buttonMainStyle}
+                  titleStyle={{
+                    color: "white",
+                    fontSize: 20,
+                    fontFamily: "medium"
+                  }}
                 />
               </View>
             </ScrollView>
-          </View>
+          </SafeAreaView>
         ) : (
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <View style={{ flex: 0.3 }}>
-              <MyCustomComponent
-                onLoad={this._cacheResourcesAsync}
-                style={{ flex: 1 }}
-                resizeMode="contain"
-                source={BG_IMAGE}
-                animation="pulse"
-                iterationCount="infinite"
-                direction="alternate"
-              />
-            </View>
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={require("../assets/loader.gif")}
+            />
           </View>
         )}
-      </SafeAreaView>
+      </React.Fragment>
     );
   }
 }
-export default Dashboard;
 
 const styles = StyleSheet.create({
-  statusBar: {
-    height: 10
+  lilTitle: {
+    fontFamily: "regular",
+    fontSize: 14,
+    color: "#acacac",
+    paddingVertical: 10
   },
-  navBar: {
-    height: 60,
-    width: SCREEN_WIDTH,
+  infoPart: {
+    fontFamily: "medium",
+    fontSize: 14,
+    color: "#333333",
+    paddingBottom: 17
+  },
+  changeButton: {
+    fontFamily: "regular",
+    fontSize: 12,
+    color: "#acacac"
+  },
+  subTitle: {
+    fontFamily: "regular",
+    fontSize: 14,
+    color: "#acacac"
+  },
+  subTitleInfo: {
+    fontFamily: "medium",
+    fontSize: 14,
+    color: "#333333"
+  },
+  twoCols: {
+    flex: 0.45,
     justifyContent: "center",
-    alignContent: "center"
+    alignItems: "center"
   },
-  nameHeader: {
-    color: "rgba(47,44,60,1)",
-    fontSize: 22,
-    textAlign: "center",
-    fontFamily: "regular"
+
+  buttonStatStyle: {
+    zIndex: 9999,
+    marginTop: -25,
+    height: 50,
+    width: 280,
+    backgroundColor: "#5caa57",
+    borderWidth: 2,
+    borderColor: "white",
+    borderRadius: 28,
+    elevation: 0
   },
-  infoTypeLabel: {
-    fontSize: 15,
-    textAlign: "right",
-    color: "rgba(126,123,138,1)",
-    fontFamily: "regular",
-    paddingBottom: 10
-  },
-  infoAnswerLabel: {
-    fontSize: 15,
-    color: "rgba(47,44,60,1)",
-    fontFamily: "regular",
-    paddingBottom: 10
-  },
-  loaderStyle: {
-    flex: 1,
-    alignSelf: "stretch",
-    resizeMode: "contain",
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
+  buttonMainStyle: {
+    height: 45,
+    width: 280,
+    backgroundColor: "#fb5607",
+    borderWidth: 2,
+    borderColor: "white",
+    borderRadius: 28,
+    elevation: 0
   }
 });
+export default Dashboard;

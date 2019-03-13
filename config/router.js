@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import { StatusBar, Platform, AsyncStorage } from "react-native";
 import { Text } from "react-native-elements";
 import {
@@ -24,87 +24,54 @@ import DummyInfoScreen from "../screens/DummyInfoScreen";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 const isAndroid = Platform.OS === "android";
 
-// static navigationOptions = ({ navigation }) => ({
-//   tabBarLabel: "Номер заказа: " + navigation.getParam("all").id,
-//   headerStyle: {
-//     backgroundColor: "white",
-//     paddingTop: 0,
-//     height: 60
-//   },
-//   headerTitleStyle: { color: "rgba(126,123,138,1)" },
-//   headerLeftContainerStyle: {
-//     padding: 0
-//   },
-//   headerTitleContainerStyle: {
-//     padding: 0
-//   },
-//   headerForceInset: { top: "never", bottom: "never" }
-// });
-
-class InfoScreenTitle extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fontLoaded: false
-    };
-  }
-
-  async componentDidMount() {
-    await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
-    });
-    this.setState({
-      fontLoaded: true
-    });
-  }
-  render() {
-    return (
-      <Text>
-        {this.state.fontLoaded ? (
-          <Text
-            style={{
-              fontFamily: "regular",
-              fontSize: 18,
-              color: "white"
-            }}
-          >
-            {"Номер заказа: " + this.props.navigation.getParam("all").id}
-          </Text>
-        ) : null}
-      </Text>
-    );
-  }
-}
-
 const OrderInfo = createStackNavigator({
   MainOrders: {
-    screen: NewOrders,
-    navigationOptions: {
-      title: "Главная",
-      header: null
-    }
+    screen: NewOrders
   },
   InfoScreen: {
-    screen: InfoScreen
-    // navigationOptions: {
-    //   headerTitle: <Text>"Главная"</Text>
-    // }
+    screen: InfoScreen,
+    navigationOptions: {
+      tabBarVisibility: false
+    }
   }
 });
 
 const MyOrderInfo = createStackNavigator({
   MyMainOrders: {
-    screen: MyOrders,
-    navigationOptions: {
-      title: "1233",
-      header: null
-    }
+    screen: MyOrders
   },
   MyInfoScreen: { screen: MyInfoScreen }
 });
+
+const MainDashboard = createStackNavigator({
+  MyMainDashboard: {
+    screen: Dashboard
+  }
+});
+
+OrderInfo.navigationOptions = ({ navigation }) => {
+  let { routeName } = navigation.state.routes[navigation.state.index];
+  let navigationOptions = {};
+
+  if (routeName === "InfoScreen") {
+    navigationOptions.tabBarVisible = false;
+    navigationOptions.swipeEnabled = false;
+  }
+
+  return navigationOptions;
+};
+
+MyOrderInfo.navigationOptions = ({ navigation }) => {
+  let { routeName } = navigation.state.routes[navigation.state.index];
+  let navigationOptions = {};
+
+  if (routeName === "MyInfoScreen") {
+    navigationOptions.tabBarVisible = false;
+    navigationOptions.swipeEnabled = false;
+  }
+
+  return navigationOptions;
+};
 
 class NewOrdersTitle extends Component {
   constructor(props) {
@@ -116,10 +83,7 @@ class NewOrdersTitle extends Component {
 
   async componentDidMount() {
     await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf")
     });
     this.setState({
       fontLoaded: true
@@ -127,16 +91,18 @@ class NewOrdersTitle extends Component {
   }
   render() {
     return (
-      <Text>
+      <Text style={{ flex: 1, textAlign: "center", paddingTop: 4 }}>
         {this.state.fontLoaded ? (
           <Text
             style={{
+              flex: 1,
               fontFamily: "regular",
-              fontSize: 18,
-              color: "white"
+              fontSize: 12,
+              color: this.props.focusColor,
+              alignSelf: "center"
             }}
           >
-            {"Новые".toUpperCase()}
+            {"Главная"}
           </Text>
         ) : null}
       </Text>
@@ -154,10 +120,7 @@ class MyOrdersTitle extends Component {
 
   async componentDidMount() {
     await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf")
     });
     this.setState({
       fontLoaded: true
@@ -165,16 +128,55 @@ class MyOrdersTitle extends Component {
   }
   render() {
     return (
-      <Text>
+      <Text style={{ flex: 1, textAlign: "center", paddingTop: 4 }}>
         {this.state.fontLoaded ? (
           <Text
             style={{
+              flex: 1,
               fontFamily: "regular",
-              fontSize: 18,
-              color: "white"
+              fontSize: 12,
+              color: this.props.focusColor,
+              alignSelf: "center"
             }}
           >
-            {"Оплаченные".toUpperCase()}
+            {"Мои заказы"}
+          </Text>
+        ) : null}
+      </Text>
+    );
+  }
+}
+
+class MyDashboardTitle extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fontLoaded: false
+    };
+  }
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf")
+    });
+    this.setState({
+      fontLoaded: true
+    });
+  }
+  render() {
+    return (
+      <Text style={{ flex: 1, textAlign: "center", paddingTop: 4 }}>
+        {this.state.fontLoaded ? (
+          <Text
+            style={{
+              flex: 1,
+              fontFamily: "regular",
+              fontSize: 12,
+              color: this.props.focusColor,
+              alignSelf: "center"
+            }}
+          >
+            {"Профиль"}
           </Text>
         ) : null}
       </Text>
@@ -186,23 +188,65 @@ const HomeTabs = createMaterialTopTabNavigator(
     NewOrders: {
       screen: OrderInfo,
       navigationOptions: {
-        tabBarLabel: <NewOrdersTitle />
+        tabBarLabel: ({ tintColor, focused, horizontal }) => (
+          <NewOrdersTitle focusColor={focused ? "#5caa57" : "#000000"} />
+        ),
+        tabBarIcon: ({ tintColor, focused, horizontal }) => {
+          return (
+            <FontAwesome
+              name={focused ? "circle" : "circle-thin"}
+              size={horizontal ? 20 : 26}
+              style={{ color: tintColor }}
+            />
+          );
+        }
       }
     },
     MyOrders: {
       screen: MyOrderInfo,
       navigationOptions: {
-        tabBarLabel: <MyOrdersTitle />
+        tabBarLabel: ({ tintColor, focused, horizontal }) => (
+          <MyOrdersTitle focusColor={focused ? "#5caa57" : "#000000"} />
+        ),
+        tabBarIcon: ({ tintColor, focused, horizontal }) => {
+          return (
+            <FontAwesome
+              name={focused ? "circle" : "circle-thin"}
+              size={horizontal ? 20 : 26}
+              style={{ color: tintColor }}
+            />
+          );
+        }
+      }
+    },
+    MyDashboard: {
+      screen: MainDashboard,
+      navigationOptions: {
+        tabBarLabel: ({ tintColor, focused, horizontal }) => (
+          <MyDashboardTitle focusColor={focused ? "#5caa57" : "#000000"} />
+        ),
+        tabBarIcon: ({ tintColor, focused, horizontal }) => {
+          return (
+            <FontAwesome
+              name={focused ? "circle" : "circle-thin"}
+              size={horizontal ? 20 : 26}
+              style={{ color: tintColor }}
+            />
+          );
+        }
       }
     }
   },
   {
+    tabBarPosition: "bottom",
     tabBarOptions: {
+      renderIndicator: () => null,
+      activeTintColor: "#5caa57",
+      inactiveTintColor: "gray",
       style: {
-        backgroundColor: "#8ac53f",
-        paddingVertical: 10
+        backgroundColor: "#ffffff"
       },
-      labelStyle: { fontSize: 18 }
+      showIcon: true
     }
   }
 );
@@ -280,6 +324,7 @@ class MaterialTopTabs extends React.Component {
       this.loadToAction();
     }, 20000);
   }
+
   componentWillUnmount() {
     clearInterval(this.intervaller);
   }
@@ -306,7 +351,7 @@ class MaterialTopTabs extends React.Component {
         });
       })
       .catch(error => {
-        console.log(error, "error");
+        console.log(error.response.data, "error");
       });
 
     const urlMyOrders = "https://api.delivera.uz/entity/paid-orders";
@@ -390,10 +435,7 @@ class MaterialTopTabsTitle extends Component {
 
   async componentDidMount() {
     await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf")
     });
     this.setState({
       fontLoaded: true
@@ -430,10 +472,7 @@ class HistoryTitle extends Component {
 
   async componentDidMount() {
     await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf")
     });
     this.setState({
       fontLoaded: true
@@ -469,10 +508,7 @@ class DashboardTitle extends Component {
 
   async componentDidMount() {
     await Font.loadAsync({
-      georgia: require("../assets/fonts/Georgia.ttf"),
-      regular: require("../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../assets/fonts/GoogleSans-Regular.ttf")
     });
     this.setState({
       fontLoaded: true
@@ -576,7 +612,7 @@ export default createAppContainer(
   createSwitchNavigator(
     {
       AuthLoading: AuthLoading,
-      App: TabNavigator,
+      App: MaterialTopTabs,
       Auth: Login
     },
     {

@@ -2,7 +2,6 @@ import React, { Component, PureComponent } from "react";
 
 import moment from "moment";
 import {
-  Text,
   Card,
   Tile,
   ListItem,
@@ -13,7 +12,7 @@ import {
 
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
-import { View } from "react-native";
+import { Text, View, Stylesheet, Image } from "react-native";
 
 import { Font } from "expo";
 import MainModal from "./MainModal";
@@ -25,7 +24,9 @@ class HomeLists extends PureComponent {
       opened: false,
       fontLoaded: false,
       items: [],
-      selectedIndex: null
+      selectedIndex: null,
+      date: "",
+      time: ""
     };
   }
   handleModal = () => {
@@ -56,20 +57,24 @@ class HomeLists extends PureComponent {
       all: allProps,
       nav: this.props.nav,
       acceptNewOrder: this.props.acceptNewOrder,
-      dummy: false
+      dummy: false,
+      date: this.state.date,
+      time: this.state.time
     });
   };
   async componentDidMount() {
     let items = this.props.allProps.items;
+    let dateAndTime = this.props.allProps.created_at.split(" ");
+    let date = moment(dateAndTime[0]).format("DD.MM.YY");
+    let time = moment(dateAndTime[1], "HH:mm:ss").format("HH:mm");
 
     this.setState({
-      items
+      items,
+      date: date,
+      time: time
     });
     await Font.loadAsync({
-      georgia: require("../../../assets/fonts/Georgia.ttf"),
-      regular: require("../../../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../../../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../../../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../../../assets/fonts/GoogleSans-Regular.ttf")
     });
     this.setState({
       fontLoaded: true
@@ -77,150 +82,117 @@ class HomeLists extends PureComponent {
   }
 
   render() {
-    let tickBool = this.props.allProps.payment_type.code;
-    let listProducts = this.props.allProps.items.map((l, i) => (
-      <React.Fragment key={l.food_id}>
-        <Text
-          style={{ fontFamily: "regular", fontSize: 18, alignSelf: "stretch" }}
-        >
-          {l.food_title}{" "}
-          <Text
-            style={{
-              color: "red",
-              fontFamily: "regular"
-            }}
-          >
-            x {l.food_amount}
-          </Text>
-        </Text>
-        {"\n"}
-      </React.Fragment>
-    ));
-
-    let modalPart = this.state.opened ? (
-      <MainModal
-        openUp={this.state.opened}
-        closed={this.handleClose}
-        order_id={this.props.allProps.id}
-        acceptNewOrder={this.props.acceptNewOrder}
-        // getFromRest={this.props.getFromRest}
-        all={this.props.allProps}
-        items={this.state.items}
-      />
-    ) : null;
-
-    const component1 = () => (
-      <Button
-        onPress={this.handleModal}
-        title={null}
-        buttonStyle={{
-          backgroundColor: "#8ac53f",
-          width: 300,
-          height: 45,
-          borderColor: "transparent",
-          borderWidth: 0,
-          borderRadius: 5
-        }}
-        icon={
-          tickBool === "cash" ? (
-            <MaterialIcons name="done-all" size={32} color="white" />
-          ) : (
-            <FontAwesome name="check" size={32} color="white" />
-          )
-        }
-      />
-    );
-
-    const component2 = () => (
-      <Button
-        onPress={this.handlePressButton}
-        title={null}
-        buttonStyle={{
-          backgroundColor: "rgba(199, 43, 98, 1)",
-          width: 300,
-          height: 45,
-          borderColor: "transparent",
-          borderWidth: 0,
-          borderRadius: 5
-        }}
-        icon={<FontAwesome name="remove" size={32} color="white" />}
-      />
-    );
-    const buttons = [{ element: component1 }, { element: component2 }];
+    let itemsString = this.props.allProps.itemsSentence;
+    // let listProducts = this.props.allProps.items.map((l, i) => (
+    //   <React.Fragment key={l.food_id}>
+    //     <Text
+    //       style={{ fontFamily: "regular", fontSize: 18, alignSelf: "stretch" }}
+    //     >
+    //       {l.food_title}{" "}
+    //       <Text
+    //         style={{
+    //           color: "red",
+    //           fontFamily: "regular"
+    //         }}
+    //       >
+    //         x {l.food_amount}
+    //       </Text>
+    //     </Text>
+    //     {"\n"}
+    //   </React.Fragment>
+    // ));
     return (
       <React.Fragment>
         {this.state.fontLoaded ? (
-          <React.Fragment>
+          <View
+            style={{
+              backgroundColor: "white",
+              borderWidth: 1,
+              borderColor: "#ddd",
+              marginHorizontal: 20,
+              marginTop: 15
+            }}
+          >
             <ListItem
-              //      contentContainerStyle={{ flex: 0.7 }}
-              onPress={this.handlePress}
+              onPress={this.handlePressButton}
+              containerStyle={{
+                paddingHorizontal: 10,
+                paddingVertical: 15
+              }}
               title={
-                <React.Fragment>
-                  <Text
-                    style={{
-                      alignSelf: "center",
-                      fontFamily: "regular",
-                      fontSize: 20
-                    }}
-                  >
-                    {this.props.allProps.id}
-                  </Text>
-                  <Text
-                    style={{
-                      paddingTop: 15,
-                      paddingBottom: 15,
-                      borderTopWidth: 1,
-                      borderTopColor: "#a7bdb6",
-                      borderBottomWidth: 1,
-                      borderBottomColor: "#a7bdb6"
-                    }}
-                  >
-                    {listProducts}
-                  </Text>
-                </React.Fragment>
-              }
-              subtitle={
-                <Text
+                <View
                   style={{
-                    fontFamily: "regular",
-                    color: "gray",
-                    paddingTop: 10
+                    flex: 1,
+                    flexDirection: "column",
+                    borderColor: "#d9d9d9",
+                    borderBottomWidth: 1
                   }}
                 >
-                  {this.props.allProps.payment_type.title === "PAYME" ? (
-                    <FontAwesome name="credit-card" size={25} />
-                  ) : (
-                    <FontAwesome name="money" size={25} color="#8ac53f" />
-                  )}{" "}
-                  {this.props.allProps.payment_type.title}
-                </Text>
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      paddingBottom: 15
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          textAlign: "left",
+                          fontFamily: "medium",
+                          fontSize: 28
+                        }}
+                      >
+                        № {this.props.allProps.id}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          textAlign: "right",
+                          fontFamily: "medium",
+                          fontSize: 16
+                        }}
+                      >
+                        {this.state.date}{" "}
+                        <Text style={{ color: "#939393" }}>|</Text>{" "}
+                        {this.state.time}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              }
+              subtitle={
+                <View
+                  style={{ flex: 1, flexDirection: "column", paddingTop: 7 }}
+                >
+                  {/* <Text>{listProducts}</Text> */}
+                  <Text
+                    style={{
+                      fontFamily: "medium",
+                      fontSize: 14,
+                      color: "#ACACAC"
+                    }}
+                  >
+                    {itemsString}
+                  </Text>
+                </View>
               }
               nav={this.props.nav}
-              bottomDivider
-              buttonGroup={{
-                buttons: buttons,
-                buttonStyle: {
-                  backgroundColor: "white",
-                  borderWidth: 0
-                },
-                containerStyle: {
-                  height: 100,
-                  flex: 0.3,
-                  flexDirection: "column",
-                  borderColor: "white"
-                  //  borderRadius: 40
-                },
-                textStyle: {
-                  color: "white",
-                  fontSize: 20,
-                  fontFamily: "regular"
-                },
-                underlayColor: "red"
-              }}
             />
-            {modalPart}
-          </React.Fragment>
-        ) : null}
+          </View>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={require("../../../assets/loader.gif")}
+            />
+          </View>
+        )}
       </React.Fragment>
     );
   }

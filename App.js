@@ -24,6 +24,7 @@ class App extends React.Component {
     splashAnimation: new Animated.Value(0),
     splashAnimationComplete: false
   };
+
   componentDidMount() {
     SplashScreen.preventAutoHide();
     this._loadAsync();
@@ -69,9 +70,6 @@ class App extends React.Component {
 
     return (
       <View style={styles.bodyPart}>
-        <View style={styles.statusBar} />
-
-        {Platform.OS === "ios" && <StatusBar barStyle="default" />}
         <Navigator />
 
         {this._maybeRenderLoadingImage()}
@@ -146,7 +144,7 @@ class App extends React.Component {
         // This is the font that we are using for our tab bar
         // We include SpaceMono because we use it in HomeScreen.js. Feel free
         // to remove this if you are not using it in your app
-        regular: require("./assets/fonts/Montserrat-Regular.ttf")
+        regular: require("./assets/fonts/GoogleSans-Regular.ttf")
       })
     ]);
   };
@@ -193,7 +191,7 @@ const styles = StyleSheet.create({
     //paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight
   },
   statusBar: {
-    backgroundColor: "#8ac53f",
+    backgroundColor: "white",
     height: Constants.statusBarHeight
   }
 });

@@ -1,31 +1,32 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 
 import moment from "moment";
 import {
-  Text,
   Card,
   Tile,
   ListItem,
   Avatar,
-  View,
   Input,
   Button
 } from "react-native-elements";
-import { Font } from "expo";
 
-import { LinearGradient } from "expo";
-import { TouchableHighlight } from "react-native";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
-import MyOrdersModal from "./MyOrdersModal";
-import MainModal from "../newOrders/MainModal";
+import { Text, View, StyleSheet, Image } from "react-native";
 
-class MyOrdersList extends Component {
+import { Font } from "expo";
+
+class MyOrdersList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       opened: false,
-      fontLoaded: false
+      fontLoaded: false,
+      items: [],
+      selectedIndex: null,
+      date: "",
+      time: "",
+      leftout: false
     };
   }
   handleModal = () => {
@@ -45,26 +46,100 @@ class MyOrdersList extends Component {
     this.props.nav.navigate("MyInfoScreen", {
       all: allProps,
       nav: this.props.nav,
-      getFromRest: this.props.getFromRest
+      acceptNewOrder: this.props.acceptNewOrder,
+      dummy: true
     });
   };
-
+  handlePressButton = () => {
+    const { allProps } = this.props;
+    console.log(allProps);
+    this.props.nav.navigate("MyInfoScreen", {
+      all: allProps,
+      nav: this.props.nav,
+      acceptNewOrder: this.props.acceptNewOrder,
+      dummy: false,
+      date: this.state.date,
+      time: this.state.time
+    });
+  };
   async componentDidMount() {
+    let items = this.props.allProps.items;
+    let dateAndTime = this.props.allProps.created_at.split(" ");
+    let date = moment(dateAndTime[0]).format("DD.MM.YY");
+    let time = moment(dateAndTime[1], "HH:mm:ss").format("HH:mm");
+
+    const { id, handlePress, entity_name, allProps } = this.props;
+    const { updated_at, period } = allProps;
+    //current time
+    let now = moment();
+    //the time when the food will be ready
+    let readyTime = moment(updated_at).add(+period, "minutes");
+    //the difference between readyTime and Now
+    let pickTime = moment.duration(readyTime.diff(now));
+    //timeLeft in minutes
+    let timeLeft = pickTime.asMinutes().toFixed(0);
+    // if time left is less than 0, print order ready
+
     await Font.loadAsync({
-      georgia: require("../../../assets/fonts/Georgia.ttf"),
-      regular: require("../../../assets/fonts/Montserrat-Regular.ttf"),
-      light: require("../../../assets/fonts/Montserrat-Light.ttf"),
-      bold: require("../../../assets/fonts/Montserrat-Bold.ttf")
+      regular: require("../../../assets/fonts/GoogleSans-Regular.ttf")
     });
-    this.setState({
-      fontLoaded: true
-    });
+    if (timeLeft === 0 || timeLeft < 0) {
+      this.setState({
+        items,
+        date: date,
+        time: time,
+        fontLoaded: true,
+        timeLeft: timeLeft,
+        leftout: true
+      });
+      this.props.updateUp();
+    } else {
+      this.setState({
+        items,
+        date: date,
+        time: time,
+        fontLoaded: true,
+        timeLeft: timeLeft
+      });
+    }
   }
+
   render() {
+    let time_status;
+    const { timeLeft } = this.state;
+    if (timeLeft > 0) {
+      time_status = (
+        <Text
+          style={{
+            fontFamily: "medium",
+            fontSize: 40,
+            color: "#333333",
+            alignSelf: "center",
+            textAlign: "center"
+          }}
+        >
+          {timeLeft}
+        </Text>
+      );
+    } else {
+      time_status = (
+        <Text
+          style={{
+            fontFamily: "medium",
+            fontSize: 40,
+            color: "#333333",
+            alignSelf: "center",
+            textAlign: "center"
+          }}
+        />
+      );
+    }
+
+    let itemsString = this.props.allProps.itemsSentence;
     let listProducts = this.props.allProps.items.map((l, i) => (
       <React.Fragment key={l.food_id}>
         <Text
-          style={{ fontFamily: "regular", fontSize: 18, alignSelf: "stretch" }}
+          style={{ fontFamily: "medium", fontSize: 14, alignSelf: "stretch" }}
         >
           {l.food_title}{" "}
           <Text
@@ -79,129 +154,173 @@ class MyOrdersList extends Component {
         {"\n"}
       </React.Fragment>
     ));
-
-    let modalPart = this.state.opened ? (
-      <MainModal
-        openUp={this.state.opened}
-        closed={this.handleClose}
-        order_id={this.props.allProps.id}
-        acceptNewOrder={this.props.acceptNewOrder}
-        // getFromRest={this.props.getFromRest}
-        all={this.props.allProps}
-        items={this.state.items}
-      />
-    ) : null;
-    const component1 = () => (
-      <Button
-        onPress={this.handleModal}
-        title={null}
-        buttonStyle={{
-          backgroundColor: "#8ac53f",
-          width: 300,
-          height: 45,
-          borderColor: "transparent",
-          borderWidth: 0,
-          borderRadius: 5
-        }}
-        icon={<MaterialIcons name="done-all" size={32} color="white" />}
-      />
-    );
-
-    const buttons = [{ element: component1 }];
-    // let code = allProps.status.code;
-    // const btn_status = code === "in_process" ? "Получил" : "Доставлен";
     return (
       <React.Fragment>
         {this.state.fontLoaded ? (
-          <React.Fragment>
+          <View
+            style={{
+              backgroundColor: "white",
+              borderWidth: 1,
+              borderColor: "#ddd",
+              marginHorizontal: 20,
+              marginTop: 15
+            }}
+          >
             <ListItem
-              //      contentContainerStyle={{ flex: 0.7 }}
-              onPress={this.handlePress}
+              onPress={this.handlePressButton}
+              containerStyle={{
+                paddingHorizontal: 10,
+                paddingVertical: 15
+              }}
               title={
-                <React.Fragment>
-                  <Text
-                    style={{
-                      alignSelf: "center",
-                      fontFamily: "regular",
-                      fontSize: 20
-                    }}
-                  >
-                    {this.props.allProps.id}
-                  </Text>
-                  <Text
-                    style={{
-                      paddingTop: 15,
-                      paddingBottom: 15,
-                      borderTopWidth: 1,
-                      borderTopColor: "#a7bdb6",
-                      borderBottomWidth: 1,
-                      borderBottomColor: "#a7bdb6"
-                    }}
-                  >
-                    {listProducts}
-                  </Text>
-                </React.Fragment>
-              }
-              subtitle={
-                <Text
+                <View
                   style={{
-                    fontFamily: "regular",
-                    color: "gray",
-                    paddingTop: 10
+                    flex: 1,
+                    flexDirection: "column",
+                    borderColor: "#d9d9d9",
+                    borderBottomWidth: 1
                   }}
                 >
-                  {this.props.allProps.payment_type.code === "payme" ? (
-                    <FontAwesome name="credit-card" size={25} />
-                  ) : (
-                    <FontAwesome name="money" size={25} color="#8ac53f" />
-                  )}{" "}
-                  {this.props.allProps.payment_type.title}
-                </Text>
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      paddingBottom: 15
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          textAlign: "left",
+                          fontFamily: "medium",
+                          fontSize: 28
+                        }}
+                      >
+                        № {this.props.allProps.id}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          textAlign: "right",
+                          fontFamily: "medium",
+                          fontSize: 16
+                        }}
+                      >
+                        {this.state.date}{" "}
+                        <Text style={{ color: "#939393" }}>|</Text>{" "}
+                        {this.state.time}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      paddingBottom: 5
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontFamily: "regular",
+                          color: "#acacac",
+                          fontSize: 16
+                        }}
+                      >
+                        заказ
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontFamily: "regular",
+                          color: "#acacac",
+                          fontSize: 16,
+                          textAlign: "center"
+                        }}
+                      >
+                        осталось
+                      </Text>
+                    </View>
+                  </View>
+                </View>
               }
-              // leftElement={
-              //   <View
-              //     style={{
-              //       flex: 0.1,
-              //       flexDirection: "column",
-              //       borderEndWidth: 1,
-              //       borderEndColor: "red"
-              //     }}
-              //   >
-              //     <Text>{this.props.allProps.id}</Text>
-              //     <Text style={{ marginTop: "auto" }}>
-              //       {this.props.allProps.id}
-              //     </Text>
-              //   </View>
-              // }
+              subtitle={
+                <View style={{ flex: 1, flexDirection: "row", paddingTop: 20 }}>
+                  <View style={{ flex: 1 }}>
+                    <Text>{listProducts}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center"
+                    }}
+                  >
+                    <View
+                      style={this.state.ready ? styles.ready : styles.notReady}
+                    >
+                      {time_status}
+                    </View>
+                    <Text
+                      style={{
+                        fontFamily: "medium",
+                        fontSize: 16,
+                        color: "#acacac"
+                      }}
+                    >
+                      минут
+                    </Text>
+                  </View>
+                  {/* <Text
+                    style={{
+                      fontFamily: "medium",
+                      fontSize: 14,
+                      color: "#ACACAC"
+                    }}
+                  >
+                    {itemsString}
+                  </Text> */}
+                </View>
+              }
               nav={this.props.nav}
-              bottomDivider
-              buttonGroup={{
-                buttons: buttons,
-                buttonStyle: {
-                  backgroundColor: "white",
-                  borderWidth: 0
-                },
-                containerStyle: {
-                  height: 100,
-                  flex: 0.3,
-                  flexDirection: "column",
-                  borderColor: "white"
-                  //  borderRadius: 40
-                },
-                textStyle: {
-                  color: "white",
-                  fontSize: 20,
-                  fontFamily: "regular"
-                },
-                underlayColor: "red"
-              }}
             />
-            {modalPart}
-          </React.Fragment>
-        ) : null}
+          </View>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={require("../../../assets/loader.gif")}
+            />
+          </View>
+        )}
       </React.Fragment>
     );
   }
 }
 
+const styles = StyleSheet.create({
+  ready: {
+    borderWidth: 1,
+    borderRadius: 100,
+    width: 60,
+    height: 60
+  },
+  notReady: {
+    borderWidth: 1,
+    borderRadius: 100,
+    width: 60,
+    height: 60,
+    backgroundColor: "#fb5607"
+  }
+});
 export default MyOrdersList;
