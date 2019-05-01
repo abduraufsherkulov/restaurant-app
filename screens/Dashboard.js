@@ -413,7 +413,7 @@ class Dashboard extends Component {
               >
                 <View style={styles.twoCols}>
                   <Text style={styles.subTitle}>лучшая доставка</Text>
-                  <Text style={styles.subTitleInfo}>12 минут</Text>
+                  <Text style={styles.subTitleInfo}>- минут</Text>
                 </View>
 
                 <View
@@ -428,7 +428,7 @@ class Dashboard extends Component {
 
                 <View style={styles.twoCols}>
                   <Text style={styles.subTitle}>худшая доставка</Text>
-                  <Text style={styles.subTitleInfo}>58 минут</Text>
+                  <Text style={styles.subTitleInfo}>- минут</Text>
                 </View>
               </View>
 
@@ -443,7 +443,7 @@ class Dashboard extends Component {
               >
                 <View style={styles.twoCols}>
                   <Text style={styles.subTitle}>% бонусов</Text>
-                  <Text style={styles.subTitleInfo}>12 %</Text>
+                  <Text style={styles.subTitleInfo}>0 %</Text>
                 </View>
 
                 <View
@@ -458,7 +458,7 @@ class Dashboard extends Component {
 
                 <View style={styles.twoCols}>
                   <Text style={styles.subTitle}>средняя сумма заказа</Text>
-                  <Text style={styles.subTitleInfo}>18 000 сум</Text>
+                  <Text style={styles.subTitleInfo}>0 сум</Text>
                 </View>
               </View>
 

@@ -25,7 +25,7 @@ class MyOrdersList extends PureComponent {
       items: [],
       selectedIndex: null,
       date: "",
-      time: "",
+      time: +"",
       leftout: false
     };
   }
@@ -77,9 +77,9 @@ class MyOrdersList extends PureComponent {
     //the difference between readyTime and Now
     let pickTime = moment.duration(readyTime.diff(now));
     //timeLeft in minutes
-    let timeLeft = pickTime.asMinutes().toFixed(0);
+    let timeLeft = +pickTime.asMinutes().toFixed(0);
     // if time left is less than 0, print order ready
-
+    console.log(timeLeft, "top");
     await Font.loadAsync({
       regular: require("../../../assets/fonts/GoogleSans-Regular.ttf")
     });
@@ -89,7 +89,7 @@ class MyOrdersList extends PureComponent {
         date: date,
         time: time,
         fontLoaded: true,
-        timeLeft: timeLeft,
+        timeLeft: +timeLeft,
         leftout: true
       });
       this.props.updateUp();
@@ -99,14 +99,15 @@ class MyOrdersList extends PureComponent {
         date: date,
         time: time,
         fontLoaded: true,
-        timeLeft: timeLeft
+        timeLeft: +timeLeft,
+        ready: true
       });
     }
   }
 
   render() {
-    let time_status;
     const { timeLeft } = this.state;
+    let time_status;
     if (timeLeft > 0) {
       time_status = (
         <Text
@@ -127,11 +128,13 @@ class MyOrdersList extends PureComponent {
           style={{
             fontFamily: "medium",
             fontSize: 40,
-            color: "#333333",
+            color: "white",
             alignSelf: "center",
             textAlign: "center"
           }}
-        />
+        >
+          {timeLeft}
+        </Text>
       );
     }
 
