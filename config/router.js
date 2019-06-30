@@ -280,14 +280,14 @@ class MaterialTopTabs extends React.Component {
       }
     })
       .then(response => {
-        console.log("done");
+        // console.log("done");
         this.setState({
           newOrdersList: response.data.orders,
           refreshing: false
         });
       })
       .catch(error => {
-        console.log(error, "error");
+        console.log(error, "error on refresh");
       });
   };
 
@@ -315,7 +315,7 @@ class MaterialTopTabs extends React.Component {
         });
       })
       .catch(error => {
-        console.log(error, "error");
+        console.log(error, "error onrefresh myorder");
       });
   };
   async componentDidMount() {
@@ -329,6 +329,8 @@ class MaterialTopTabs extends React.Component {
     clearInterval(this.intervaller);
   }
   loadToAction = async () => {
+    // await AsyncStorage.clear();
+    // console.log("loading");
     this.setState({ refreshing: true });
     let token = await AsyncStorage.getItem("access_token");
     const urlOrders = "https://api.delivera.uz/entity/new-orders";
@@ -345,13 +347,13 @@ class MaterialTopTabs extends React.Component {
       }
     })
       .then(response => {
-        //  console.log(response.data.orders);
+        console.log(response.data);
         this.setState({
           newOrdersList: response.data.orders
         });
       })
       .catch(error => {
-        console.log(error.response.data, "error");
+        console.log(error.response.data, "error new order");
       });
 
     const urlMyOrders = "https://api.delivera.uz/entity/paid-orders";
@@ -368,7 +370,7 @@ class MaterialTopTabs extends React.Component {
       }
     })
       .then(response => {
-        //console.log(response.data);
+        // console.log(response.data);
         this.setState({
           myOrdersList: response.data.orders,
           refreshing: false
@@ -376,7 +378,7 @@ class MaterialTopTabs extends React.Component {
         // console.log(response.data.orders);
       })
       .catch(error => {
-        console.log(error, "error");
+        console.log(error, "error my order");
       });
   };
   loadToMyOrders = async () => {
@@ -401,7 +403,7 @@ class MaterialTopTabs extends React.Component {
         // console.log(response.data.orders);
       })
       .catch(error => {
-        console.log(error, "error");
+        console.log(error, "error only my order");
       });
   };
 

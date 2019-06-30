@@ -279,7 +279,7 @@ class InfoScreen extends Component {
   });
 
   checkItems(id, i) {
-    const changedCheckbox = this.state.items.find(j => j.food_id === id);
+    const changedCheckbox = this.state.items.find(j => j.basket_id === id);
     changedCheckbox.checked = !changedCheckbox.checked;
     const checkboxes = Object.assign({}, this.state.items, changedCheckbox);
     let myCheck = [];
@@ -307,7 +307,7 @@ class InfoScreen extends Component {
       let myArr = [];
       this.state.items.forEach(function(element) {
         if (element.checked === false) {
-          myArr.push(element.food_id);
+          myArr.push(element.basket_id);
         }
       });
       let rejectItems = myArr.join();
@@ -332,7 +332,7 @@ class InfoScreen extends Component {
         let myArr = [];
         this.state.items.forEach(function(element) {
           if (element.checked === false) {
-            myArr.push(element.food_id);
+            myArr.push(element.basket_id);
           }
         });
         rejectItems = myArr.join();
@@ -354,7 +354,7 @@ class InfoScreen extends Component {
         let myArr = [];
         this.state.items.forEach(function(element) {
           if (element.checked === false) {
-            myArr.push(element.food_id);
+            myArr.push(element.basket_id);
           }
         });
         rejectItems = myArr.join();
@@ -377,7 +377,7 @@ class InfoScreen extends Component {
     let overall = allVal.totalPrice.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     let listProducts = this.state.fontLoaded
       ? allVal.items.map((l, i) => (
-          <View key={l.food_id} style={{ flex: 1 }}>
+          <View key={l.basket_id} style={{ flex: 1 }}>
             <CheckBox
               title={
                 <Text
@@ -387,7 +387,15 @@ class InfoScreen extends Component {
                       : styles.uncheckedText
                   }
                 >
-                  {l.food_title}
+                  {l.food_title}{" "}
+                  {l.attributes.map((x, k) => (
+                    <React.Fragment key={k}>
+                      <Text>
+                        {"\n"}
+                        {x}
+                      </Text>
+                    </React.Fragment>
+                  ))}
                 </Text>
               }
               containerStyle={{
@@ -409,7 +417,7 @@ class InfoScreen extends Component {
               checkedIcon="md-checkbox"
               uncheckedIcon="md-square-outline"
               checkedColor="#5caa57"
-              onPress={() => this.checkItems(l.food_id, i)}
+              onPress={() => this.checkItems(l.basket_id, i)}
               checked={this.state.items[i].checked}
             />
           </View>
@@ -418,7 +426,7 @@ class InfoScreen extends Component {
 
     let listDummyProducts = this.state.fontLoaded
       ? allVal.items.map((l, i) => (
-          <View key={l.food_id}>
+          <View key={l.basket_id}>
             <ListItem
               title={
                 <Text style={styles.dummyCheckedText}>

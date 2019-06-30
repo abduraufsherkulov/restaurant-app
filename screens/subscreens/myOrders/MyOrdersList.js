@@ -140,7 +140,7 @@ class MyOrdersList extends PureComponent {
 
     let itemsString = this.props.allProps.itemsSentence;
     let listProducts = this.props.allProps.items.map((l, i) => (
-      <React.Fragment key={l.food_id}>
+      <React.Fragment key={l.basket_id}>
         <Text
           style={{ fontFamily: "medium", fontSize: 14, alignSelf: "stretch" }}
         >

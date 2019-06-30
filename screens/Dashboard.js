@@ -18,6 +18,7 @@ import { Entypo } from "@expo/vector-icons";
 import { Text, Button } from "react-native-elements";
 import { Font } from "expo";
 import { BarChartMain, PieChart, PieChartMain } from "./Statistics";
+import EditPassword from "./subscreens/inDashboard/EditPassword";
 const isAndroid = Platform.OS === "android";
 
 import {
@@ -55,6 +56,7 @@ class Dashboard extends Component {
       token: "",
       loading: true,
       showLoading: false,
+      opened: false,
       today: moment(new Date()).format("DD.MM.YY"),
       year: moment(new Date()).format("YYYY"),
       month: moment(new Date()).format("MM"),
@@ -330,7 +332,30 @@ class Dashboard extends Component {
       console.warn("Cannot open date picker", message);
     }
   };
+
+  handleModal = () => {
+    this.setState({
+      opened: true
+    });
+  };
+  handleClose = () => {
+    this.setState({
+      opened: false
+    });
+  };
+
   render() {
+    let modalPart = this.state.opened ? (
+      <EditPassword
+        // nav={nav}
+        openUp={this.state.opened}
+        closed={this.handleClose}
+        // acceptNewOrder={acceptNewOrder}
+        //  getFromRest={this.props.getFromRest}
+        // all={allVal}
+      />
+    ) : null;
+
     return (
       <React.Fragment>
         {!this.state.loading ? (
@@ -372,7 +397,9 @@ class Dashboard extends Component {
                   <Lock />
                   <Text style={styles.lilTitle}>пароль</Text>
                   <Text style={styles.infoPart}>* * * * * * *</Text>
-                  <Text style={styles.changeButton}>Изменить</Text>
+                  <Text onPress={this.handleModal} style={styles.changeButton}>
+                    Изменить
+                  </Text>
                 </View>
               </View>
               <View
@@ -513,6 +540,7 @@ class Dashboard extends Component {
                   }}
                 />
               </View>
+              {modalPart}
             </ScrollView>
           </SafeAreaView>
         ) : (
