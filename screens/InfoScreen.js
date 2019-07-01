@@ -390,12 +390,13 @@ class InfoScreen extends Component {
                   {l.food_title}{" "}
                   {l.attributes.map((x, k) => (
                     <React.Fragment key={k}>
-                      <Text>
+                      <Text style={{fontFamily: 'regular'}}>
                         {"\n"}
                         {x}
                       </Text>
                     </React.Fragment>
                   ))}
+                  {" "}x{" "}{l.food_amount}
                 </Text>
               }
               containerStyle={{

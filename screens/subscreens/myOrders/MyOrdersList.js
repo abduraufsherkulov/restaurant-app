@@ -26,7 +26,8 @@ class MyOrdersList extends PureComponent {
       selectedIndex: null,
       date: "",
       time: +"",
-      leftout: false
+      leftout: false,
+      added: false,
     };
   }
   handleModal = () => {
@@ -42,7 +43,7 @@ class MyOrdersList extends PureComponent {
 
   handlePress = () => {
     const { allProps } = this.props;
-    console.log(allProps);
+    // console.log(allProps);
     this.props.nav.navigate("MyInfoScreen", {
       all: allProps,
       nav: this.props.nav,
@@ -52,7 +53,7 @@ class MyOrdersList extends PureComponent {
   };
   handlePressButton = () => {
     const { allProps } = this.props;
-    console.log(allProps);
+    // console.log(allProps);
     this.props.nav.navigate("MyInfoScreen", {
       all: allProps,
       nav: this.props.nav,
@@ -62,7 +63,54 @@ class MyOrdersList extends PureComponent {
       time: this.state.time
     });
   };
+
+    tick() {
+      let items = this.props.allProps.items;
+      let dateAndTime = this.props.allProps.created_at.split(" ");
+      let date = moment(dateAndTime[0]).format("DD.MM.YY");
+      let time = moment(dateAndTime[1], "HH:mm:ss").format("HH:mm");
+  
+      const { id, handlePress, entity_name, allProps } = this.props;
+      const { updated_at, period } = allProps;
+      //current time
+      let now = moment();
+      //the time when the food will be ready
+      let readyTime = moment(updated_at).add(+period, "minutes");
+      //the difference between readyTime and Now
+      let pickTime = moment.duration(readyTime.diff(now));
+      //timeLeft in minutes
+      let timeLeft = +pickTime.asMinutes().toFixed(0);
+      // if time left is less than 0, print order ready
+      // console.log(timeLeft, "top");
+      if (timeLeft === 0 || timeLeft < 0) {
+        this.setState({
+          date: date,
+          time: time,
+          timeLeft: +timeLeft,
+        }, ()=>{
+          if(this.state.leftout === false ){
+            this.props.updateUp();
+            this.setState({ 
+              leftout: true
+            })
+          }
+        });
+      } else {
+        this.setState({
+          date: date,
+          time: time,
+          timeLeft: +timeLeft,
+          ready: true
+        });
+      }
+  }
+
+
   async componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      60000
+    );
     let items = this.props.allProps.items;
     let dateAndTime = this.props.allProps.created_at.split(" ");
     let date = moment(dateAndTime[0]).format("DD.MM.YY");
@@ -79,7 +127,7 @@ class MyOrdersList extends PureComponent {
     //timeLeft in minutes
     let timeLeft = +pickTime.asMinutes().toFixed(0);
     // if time left is less than 0, print order ready
-    console.log(timeLeft, "top");
+    // console.log(timeLeft, "top");
     await Font.loadAsync({
       regular: require("../../../assets/fonts/GoogleSans-Regular.ttf")
     });
@@ -104,7 +152,9 @@ class MyOrdersList extends PureComponent {
       });
     }
   }
-
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
   render() {
     const { timeLeft } = this.state;
     let time_status;
@@ -133,7 +183,7 @@ class MyOrdersList extends PureComponent {
             textAlign: "center"
           }}
         >
-          {timeLeft}
+          {Math.abs(timeLeft)}
         </Text>
       );
     }

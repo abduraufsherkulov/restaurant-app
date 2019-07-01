@@ -40,7 +40,7 @@ class MyHistoryList extends Component {
 
   handlePress = () => {
     const { allProps } = this.props;
-    console.log(allProps);
+    // console.log(allProps);
     this.props.nav.navigate("DummyInfoScreen", {
       all: allProps,
       nav: this.props.nav,

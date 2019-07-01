@@ -55,7 +55,7 @@ class MyOrdersModal extends Component {
         }
       })
         .then(response => {
-          console.log(response.data);
+          // console.log(response.data);
           if (response.data.reason === "Accepted") {
             this.props.closed();
             this.props.getFromRest();

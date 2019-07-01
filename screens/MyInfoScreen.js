@@ -108,7 +108,7 @@ class MyInfoScreen extends Component {
         order_id: this.state.order_id,
         removedItems: this.state.rejectItems
       });
-      console.log(data);
+      // console.log(data);
       const url = "https://api.delivera.uz/entity/reject";
       axios({
         method: "post",
@@ -143,7 +143,7 @@ class MyInfoScreen extends Component {
         const data = JSON.stringify({
           order_id: this.state.order_id
         });
-        console.log(data);
+        // console.log(data);
         const url = "https://api.delivera.uz/entity/accept";
         axios({
           method: "post",
@@ -201,7 +201,7 @@ class MyInfoScreen extends Component {
             }
           })
             .then(response => {
-              console.log(response.data, "first");
+              // console.log(response.data, "first");
               if (response.data.reason === "Accepted") {
                 // this.props.closed();
                 params.acceptNewOrder();

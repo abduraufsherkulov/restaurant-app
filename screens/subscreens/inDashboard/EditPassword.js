@@ -73,7 +73,7 @@ class EditPassword extends Component {
       }
     })
       .then(response => {
-        console.log(response.data.reason);
+        // console.log(response.data.reason);
         if (response.data.reason === "Password changed") {
           this.setState({
             loading: false

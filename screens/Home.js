@@ -38,16 +38,16 @@ class Home extends React.Component {
         this.setState({
           orders: response.data.orders
         });
-        console.log(typeof response.data.orders[0].period);
-        console.log(moment(response.data.orders[0].updated_at));
-        console.log(
-          moment(response.data.orders[0].updated_at).add(20, "minutes")
-        );
-        console.log(
-          moment(response.data.orders[0].updated_at).subtract(20, "minutes")
-        );
+        // console.log(typeof response.data.orders[0].period);
+        // console.log(moment(response.data.orders[0].updated_at));
+        // console.log(
+        //   moment(response.data.orders[0].updated_at).add(20, "minutes")
+        // );
+        // console.log(
+        //   moment(response.data.orders[0].updated_at).subtract(20, "minutes")
+        // );
         let now = moment();
-        console.log(now);
+        // console.log(now);
       })
       .catch(error => {
         console.log(error.response, "error");
@@ -56,7 +56,7 @@ class Home extends React.Component {
 
   handlePress = () => console.log("this is an example method");
   render() {
-    console.log(this.state.orders);
+    // console.log(this.state.orders);
     return (
       <ScrollView>
         <View style={styles.list}>

@@ -129,13 +129,13 @@ class Dashboard extends Component {
       medium: require("../assets/fonts/GoogleSans-Medium.ttf")
     });
     let token = await AsyncStorage.getItem("access_token");
-
+    console.log(token);
     const data = JSON.stringify({
-      year: this.state.year,
-      month: this.state.month,
-      day: this.state.day
+      year: +this.state.year,
+      month: +this.state.month,
+      day: +this.state.day
     });
-
+    console.log(data);
     const getGraph = "https://api.delivera.uz/entity/get-graph-data";
     axios({
       method: "post",
@@ -151,7 +151,7 @@ class Dashboard extends Component {
       }
     })
       .then(async response => {
-        // console.log(response.data);
+        console.log(response.data);
         let graphVal = await response.data;
         await AsyncStorage.multiGet(["username", "full_name", "phone"]).then(
           response => {
@@ -184,6 +184,7 @@ class Dashboard extends Component {
       }
     })
       .then(response => {
+        console.log(response.data)
         if (response.data.length === 0) {
           this.setState({
             loading: false,
@@ -273,10 +274,11 @@ class Dashboard extends Component {
           },
           () => {
             const data = JSON.stringify({
-              year: this.state.year,
-              month: this.state.month,
-              day: this.state.day
+              year: +this.state.year,
+              month: +this.state.month+1,
+              day: +this.state.day
             });
+            console.log(data);
             const urlLogout = "https://api.delivera.uz/entity/get-graph-data";
             axios({
               method: "post",
@@ -320,7 +322,7 @@ class Dashboard extends Component {
                   pieValue: response.data,
                   graphLoading: false
                 });
-                // console.log(response.data.orders);
+                // console.log(response.data);
               })
               .catch(error => {
                 console.log(error, "error");

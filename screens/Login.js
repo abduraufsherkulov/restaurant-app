@@ -93,10 +93,10 @@ export default class Login extends React.Component {
     });
 
     const data = JSON.stringify({
-      // username: this.state.username,
-      // password: this.state.password,
-      username: "admin",
-      password: "delivera.uz",
+      username: this.state.username,
+      password: this.state.password,
+      // username: "urban",
+      // password: "urbanfood",
       info: {
         platform: platform,
         app_version: app_version,
@@ -127,7 +127,7 @@ export default class Login extends React.Component {
             });
           } else {
             let token = response.data;
-            console.log(token.access_token);
+            // console.log(token.access_token);
             await AsyncStorage.setItem("access_token", token.access_token);
             let entity_info = token.entity_info;
             await AsyncStorage.multiSet([
@@ -202,7 +202,7 @@ export default class Login extends React.Component {
         duration: 1 // Make it take a while
       }
     ).start();
-    console.log(this.state.moveAnim);
+    // console.log(this.state.moveAnim);
   };
 
   _keyboardDidHide = () => {
@@ -214,7 +214,7 @@ export default class Login extends React.Component {
         duration: 1 // Make it take a while
       }
     ).start();
-    console.log(this.state.moveAnim);
+    // console.log(this.state.moveAnim);
   };
   componentWillUnmount() {
     this.keyboardDidShowListener.remove();

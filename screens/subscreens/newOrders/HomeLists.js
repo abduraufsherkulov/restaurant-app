@@ -42,7 +42,7 @@ class HomeLists extends PureComponent {
 
   handlePress = () => {
     const { allProps } = this.props;
-    console.log(allProps);
+    // console.log(allProps);
     this.props.nav.navigate("InfoScreen", {
       all: allProps,
       nav: this.props.nav,
@@ -52,7 +52,7 @@ class HomeLists extends PureComponent {
   };
   handlePressButton = () => {
     const { allProps } = this.props;
-    console.log(allProps);
+    // console.log(allProps);
     this.props.nav.navigate("InfoScreen", {
       all: allProps,
       nav: this.props.nav,

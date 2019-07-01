@@ -6,10 +6,10 @@ import {
   XAxis,
   YAxis
 } from "react-native-svg-charts";
-import { Text } from "react-native-svg";
+import { Circle, G, Line, Text } from 'react-native-svg'
 import { Font } from "expo";
 
-import { View, ScrollView, Image } from "react-native";
+import {Text as MainText, View, ScrollView, Image } from "react-native";
 import * as scale from "d3-scale";
 
 export class BarChartMain extends React.PureComponent {
@@ -70,7 +70,7 @@ export class BarChartMain extends React.PureComponent {
           alignmentBaseline={"middle"}
           textAnchor={"middle"}
         >
-          {value}
+          {value>0 && (value/1000).toString()+"K"}
         </Text>
       ));
     const xMainAxis = [
@@ -153,46 +153,71 @@ export class BarChartMain extends React.PureComponent {
 
 export class PieChartMain extends React.PureComponent {
   render() {
-    const Labels = ({ slices, height, width }) => {
+    console.log(this.props.pieValues);
+    const desc = this.props.pieValues.map((x, y)=>(
+      <View style={{height: 50, width: "100%"}} key={x.key}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{width: 30, height: 30, backgroundColor: x.svg.fill}}></View>
+            <MainText style={{fontFamily: 'regular', fontSize: 14}}>{"  "}{x.title}</MainText>
+            <MainText style={{fontFamily: 'regular', fontSize: 14}}> - {x.totalValue} сум</MainText>
+          </View>
+      </View>
+    ))
+    const Labels = ({ slices }) => {
       return slices.map((slice, index) => {
-        const { labelCentroid, pieCentroid, data } = slice;
-        return (
-          <Text
-            key={index}
-            x={pieCentroid[0]}
-            y={pieCentroid[1]}
-            fill={"white"}
-            textAnchor={"middle"}
-            alignmentBaseline={"middle"}
-            fontSize={18}
-            stroke={"white"}
-            strokeWidth={0.2}
-          >
-            {data.amount}
-          </Text>
-        );
-      });
-    };
+          const { labelCentroid, pieCentroid, data } = slice;
+          return (
+              <G key={ index }>
+                  <Line
+                      x1={ labelCentroid[ 0 ] }
+                      y1={ labelCentroid[ 1 ] }
+                      x2={ pieCentroid[ 0 ] }
+                      y2={ pieCentroid[ 1 ] }
+                      stroke={ data.svg.fill }
+                  />
+                  <Circle
+                      cx={ labelCentroid[ 0 ] }
+                      cy={ labelCentroid[ 1 ] }
+                      r={ 30 }
+                      fill={ data.svg.fill }
+                  />
+                  <Text
+                      x={labelCentroid[ 0 ]}
+                      y={labelCentroid[ 1 ]}
+                      fill={'black'}
+                      textAnchor={'middle'}
+                      alignmentBaseline={'middle'}
+                      fontSize={14}
+                      stroke={'black'}
+                      strokeWidth={0.2}
+                  >
+                      {data.value !== undefined ? data.value.toString() + "%": data.value}
+                  </Text>
+              </G>
+          )
+      })
+  }
 
     return (
       <View
         style={{
           paddingTop: 20,
           marginTop: 50,
-          height: 425,
+          height: 600,
           backgroundColor: "#f6f6f6"
         }}
       >
-        <PieChart
-          style={{ height: 200 }}
-          valueAccessor={({ item }) => item.amount}
-          data={this.props.pieValues}
-          spacing={0}
-          outerRadius={"95%"}
-          padAngle={0}
-        >
+          <PieChart
+                style={ { height: 300 } }
+                valueAccessor={({ item }) => item.value}
+                data={ this.props.pieValues }
+                innerRadius={ 40 }
+                outerRadius={ 70 }
+                labelRadius={ 120 }
+            >
           <Labels />
         </PieChart>
+        {desc}
       </View>
     );
   }

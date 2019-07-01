@@ -6,6 +6,7 @@ import {
   Platform,
   StatusBar,
   Image,
+  AsyncStorage,
   Animated
 } from "react-native";
 import Navigator from "./config/router";
@@ -25,7 +26,8 @@ class App extends React.Component {
     splashAnimationComplete: false
   };
 
-  componentDidMount() {
+   componentDidMount() {
+    
     SplashScreen.preventAutoHide();
     this._loadAsync();
   }
