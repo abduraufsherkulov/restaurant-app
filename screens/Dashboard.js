@@ -62,6 +62,7 @@ class Dashboard extends Component {
       month: moment(new Date()).format("MM"),
       day: moment(new Date()).format("DD"),
       graphLoading: true,
+      user_role: "worker",
       pieValue: [
         {
           key: 1,
@@ -124,6 +125,10 @@ class Dashboard extends Component {
   }
 
   async componentDidMount() {
+    let user_role = await AsyncStorage.getItem("user_role");
+    this.setState({
+      user_role: user_role
+    })
     await Font.loadAsync({
       regular: require("../assets/fonts/GoogleSans-Regular.ttf"),
       medium: require("../assets/fonts/GoogleSans-Medium.ttf")
@@ -294,7 +299,7 @@ class Dashboard extends Component {
               }
             })
               .then(response => {
-                // console.log(response.data);
+                console.log(response.data);
                 this.setState({
                   graphValue: response.data
                 });
@@ -412,7 +417,8 @@ class Dashboard extends Component {
               >
                 <HorizontalDivider />
               </View>
-
+              {this.state.user_role === "head"? (
+              <React.Fragment>
               <View
                 style={{
                   justifyContent: "center",
@@ -527,6 +533,8 @@ class Dashboard extends Component {
                 loading={this.state.graphLoading}
               />
               <PieChartMain pieValues={this.state.pieValue} />
+              </React.Fragment>
+              ):null}
               <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <Button
                   type="solid"
@@ -596,7 +604,7 @@ const styles = StyleSheet.create({
 
   buttonStatStyle: {
     zIndex: 9999,
-    marginTop: -25,
+    // marginTop: -25,
     height: 50,
     width: 280,
     backgroundColor: "#5caa57",

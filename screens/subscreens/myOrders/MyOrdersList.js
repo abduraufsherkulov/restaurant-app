@@ -118,6 +118,7 @@ class MyOrdersList extends PureComponent {
 
     const { id, handlePress, entity_name, allProps } = this.props;
     const { updated_at, period } = allProps;
+    console.log(allProps);
     //current time
     let now = moment();
     //the time when the food will be ready
@@ -126,6 +127,7 @@ class MyOrdersList extends PureComponent {
     let pickTime = moment.duration(readyTime.diff(now));
     //timeLeft in minutes
     let timeLeft = +pickTime.asMinutes().toFixed(0);
+    // console.log(timeLeft);
     // if time left is less than 0, print order ready
     // console.log(timeLeft, "top");
     await Font.loadAsync({
@@ -163,7 +165,7 @@ class MyOrdersList extends PureComponent {
         <Text
           style={{
             fontFamily: "medium",
-            fontSize: 40,
+            fontSize: 25,
             color: "#333333",
             alignSelf: "center",
             textAlign: "center"
@@ -172,12 +174,12 @@ class MyOrdersList extends PureComponent {
           {timeLeft}
         </Text>
       );
-    } else {
+    } else if(timeLeft < 0 && Math.abs(timeLeft).toString().length < 4) {
       time_status = (
         <Text
           style={{
             fontFamily: "medium",
-            fontSize: 40,
+            fontSize: 25,
             color: "white",
             alignSelf: "center",
             textAlign: "center"
@@ -186,6 +188,21 @@ class MyOrdersList extends PureComponent {
           {Math.abs(timeLeft)}
         </Text>
       );
+    } else {
+      time_status = (
+        <Text
+          style={{
+            fontFamily: "medium",
+            fontSize: 25,
+            color: "white",
+            alignSelf: "center",
+            textAlign: "center"
+          }}
+        >
+         <MaterialIcons name="alarm-on" size={32} color="white" />
+        </Text>
+      );
+
     }
 
     let itemsString = this.props.allProps.itemsSentence;
@@ -363,12 +380,18 @@ class MyOrdersList extends PureComponent {
 
 const styles = StyleSheet.create({
   ready: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderRadius: 100,
     width: 60,
     height: 60
   },
   notReady: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderRadius: 100,
     width: 60,

@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Platform,
   RefreshControl,
+  TouchableOpacity,
   FlatList,
   Image
 } from "react-native";
@@ -18,6 +19,7 @@ import axios from "axios";
 import MyOrdersList from "./myOrders/MyOrdersList";
 import { Font } from "expo";
 import { NavigationLogo } from "../../assets/images/MainSvg";
+import { EvilIcons } from "@expo/vector-icons";
 const isAndroid = Platform.OS === "android";
 
 class MyOrdersTitle extends React.Component {
@@ -65,6 +67,10 @@ class MyOrders extends React.PureComponent {
   handlePress = () => {
     this.props.navigation.navigate("MyInfoScreen", {});
   };
+  handleHistory=()=>{
+    console.log('clicked');
+    this.props.navigation.navigate("MyMainHistory", {});
+  }
 
   _renderItem = ({ item }) => (
     <View style={styles.list}>
@@ -115,6 +121,46 @@ class MyOrders extends React.PureComponent {
     //       <Text style={{ flex: 1 }}>На данный момент нет заказов.</Text>
     //     </View>
     //   );
+    
+    
+    let listFooterComponent = (
+      <View
+        style={{
+          width: "100%",
+          height: 49,
+          paddingHorizontal: 20,
+          backgroundColor: "rgba(242, 242, 242, 0.7)",
+          borderWidth: 1,
+          borderColor: "rgba(112, 112, 112, 0.1)"
+        }}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, alignItems: "center", flexDirection: "row" }}
+          onPress={this.handleHistory}
+        >
+          <Text
+            style={{
+              flex: 0.9,
+              fontFamily: "medium",
+              fontSize: 14,
+              color: "#707070"
+            }}
+          >
+            Посмотреть историю
+          </Text>
+          <Text
+            style={{
+              flex: 0.1,
+              justifyContent: "center",
+              flexDirection: "row",
+              textAlign: "right"
+            }}
+          >
+            <EvilIcons name="chevron-right" size={20} />
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
     return (
       <React.Fragment>
         {this.state.fontLoaded ? (
@@ -156,11 +202,13 @@ class MyOrders extends React.PureComponent {
               </View>
             </View>
             <FlatList
+              contentContainerStyle={{paddingBottom:59}}
               data={this.props.screenProps.myOrdersList}
               renderItem={this._renderItem}
               keyExtractor={this._keyExtractor}
               initialScrollIndex={0}
               initialNumToRender={3}
+              ListFooterComponent={listFooterComponent}
               refreshControl={
                 <RefreshControl
                   refreshing={this.props.screenProps.refreshState}

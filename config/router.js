@@ -40,9 +40,28 @@ const MyOrderInfo = createStackNavigator({
   MyMainOrders: {
     screen: MyOrders
   },
-  MyInfoScreen: { screen: MyInfoScreen }
+  MyInfoScreen: { screen: MyInfoScreen },
+  MyMainHistory: {
+    screen: MyHistory,
+    navigationOptions: {
+      title: "1233",
+      header: null
+    }
+  },
+  DummyInfoScreen: { screen: DummyInfoScreen }
+  
 });
 
+// const MyHistoryInfo = createStackNavigator({
+//   MyMainHistory: {
+//     screen: MyHistory,
+//     navigationOptions: {
+//       title: "1233",
+//       header: null
+//     }
+//   },
+//   DummyInfoScreen: { screen: DummyInfoScreen }
+// });
 const MainDashboard = createStackNavigator({
   MyMainDashboard: {
     screen: Dashboard
@@ -353,7 +372,7 @@ class MaterialTopTabs extends React.Component {
         });
       })
       .catch(error => {
-        console.log(error.response.data, "error new order");
+        console.log(error, "error new order");
       });
 
     const urlMyOrders = "https://api.delivera.uz/entity/paid-orders";
@@ -537,16 +556,16 @@ class DashboardTitle extends Component {
   }
 }
 
-const MyHistoryInfo = createStackNavigator({
-  MyMainHistory: {
-    screen: MyHistory,
-    navigationOptions: {
-      title: "1233",
-      header: null
-    }
-  },
-  DummyInfoScreen: { screen: DummyInfoScreen }
-});
+// const MyHistoryInfo = createStackNavigator({
+//   MyMainHistory: {
+//     screen: MyHistory,
+//     navigationOptions: {
+//       title: "1233",
+//       header: null
+//     }
+//   },
+//   DummyInfoScreen: { screen: DummyInfoScreen }
+// });
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -565,23 +584,23 @@ const TabNavigator = createBottomTabNavigator(
         )
       }
     },
-    History: {
-      screen: MyHistoryInfo,
-      navigationOptions: {
-        tabBarLabel: ({ tintColor, focused, horizontal }) => (
-          <HistoryTitle focusColor={focused ? "#8ac53f" : "grey"} />
-        ),
-        tabBarIcon: ({ tintColor, focused, horizontal }) => {
-          return (
-            <FontAwesome
-              name={focused ? "folder-open" : "folder-open-o"}
-              size={horizontal ? 20 : 26}
-              style={{ color: tintColor }}
-            />
-          );
-        }
-      }
-    },
+    // History: {
+    //   screen: MyHistoryInfo,
+    //   navigationOptions: {
+    //     tabBarLabel: ({ tintColor, focused, horizontal }) => (
+    //       <HistoryTitle focusColor={focused ? "#8ac53f" : "grey"} />
+    //     ),
+    //     tabBarIcon: ({ tintColor, focused, horizontal }) => {
+    //       return (
+    //         <FontAwesome
+    //           name={focused ? "folder-open" : "folder-open-o"}
+    //           size={horizontal ? 20 : 26}
+    //           style={{ color: tintColor }}
+    //         />
+    //       );
+    //     }
+    //   }
+    // },
     Dashboard: {
       screen: Dashboard,
       navigationOptions: {

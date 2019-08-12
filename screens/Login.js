@@ -105,9 +105,8 @@ export default class Login extends React.Component {
         push_token: token
       }
     });
-
+    console.log(data);
     const url = "https://api.delivera.uz/entity/login";
-
     axios({
       method: "post",
       url: url,
@@ -127,8 +126,11 @@ export default class Login extends React.Component {
             });
           } else {
             let token = response.data;
+            console.log(response.data);
             // console.log(token.access_token);
             await AsyncStorage.setItem("access_token", token.access_token);
+            await AsyncStorage.setItem("user_role", token.user_role);
+            console.log(token.user_role);
             let entity_info = token.entity_info;
             await AsyncStorage.multiSet([
               ["id", entity_info.id.toString()],
@@ -138,11 +140,11 @@ export default class Login extends React.Component {
             this.props.navigation.navigate("App");
           }
         } else {
-          console.log(response, "unknown error");
+          console.log("unknown error");
         }
       })
       .catch(function(error) {
-        console.log(error.response);
+        console.log(error);
       });
     event.preventDefault();
   };

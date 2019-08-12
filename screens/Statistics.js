@@ -116,7 +116,7 @@ export class BarChartMain extends React.PureComponent {
                   style={{ marginTop: 10 }}
                   data={hours}
                   scale={scale.scaleBand}
-                  formatLabel={(value, index) => index + 1}
+                  formatLabel={(value, index) => (index+1)*3}
                   labelStyle={{ color: "red", fontFamily: "regular" }}
                 />
               </View>
@@ -203,7 +203,7 @@ export class PieChartMain extends React.PureComponent {
         style={{
           paddingTop: 20,
           marginTop: 50,
-          height: 600,
+          height: 650,
           backgroundColor: "#f6f6f6"
         }}
       >
@@ -217,7 +217,9 @@ export class PieChartMain extends React.PureComponent {
             >
           <Labels />
         </PieChart>
-        {desc}
+        <View style={{paddingHorizontal: 50, paddingBottom: 40}}>
+          {desc}
+        </View>
       </View>
     );
   }

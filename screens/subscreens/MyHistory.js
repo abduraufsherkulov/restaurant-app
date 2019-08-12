@@ -10,7 +10,8 @@ import {
   ScrollView,
   StyleSheet,
   Platform,
-  RefreshControl
+  RefreshControl,
+  FlatList
 } from "react-native";
 import { Font } from "expo";
 
@@ -128,6 +129,18 @@ class MyHistory extends React.Component {
       searchID
     });
   };
+  _keyExtractor = (item, index) => item.id.toString();
+  
+  _renderItem = ({ item }) => (
+    <View style={styles.list}>
+    <MyHistoryList
+      showAllData={this.loadToArchive}
+      key={item.id}
+      nav={this.props.navigation}
+      allProps={item}
+    />
+    </View>
+  );
   render() {
     let newArr = [];
     let newObj = this.state.archiveLoadList.find(this.isID);
@@ -183,43 +196,27 @@ class MyHistory extends React.Component {
     //       ));
     return (
       <SafeAreaView forceInset={{ horizontal: "always", top: "always" }}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._onRefreshArchive}
-              enabled={true}
-              colors={["#8ac53f"]}
-              progressBackgroundColor="white"
-              size={200}
-              tintColor="yellow"
-              title="loading"
+        
+        <FlatList
+              contentContainerStyle={{paddingBottom:59}}
+              data={this.state.archiveLoadList}
+              renderItem={this._renderItem}
+              keyExtractor={this._keyExtractor}
+              initialScrollIndex={0}
+              initialNumToRender={3}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={this._onRefreshArchive}
+                  enabled={true}
+                  colors={["#8ac53f"]}
+                  progressBackgroundColor="white"
+                  size={200}
+                  tintColor="yellow"
+                  title="loading"
+                />
+              }
             />
-          }
-        >
-          {isAndroid ? (
-            <SearchBar
-              placeholder="ID"
-              platform="android"
-              keyboardType="numeric"
-              onChangeText={this.handleSearch}
-              // onChangeText: searchID => this.setState({searchID})
-              {...dummySearchBarProps}
-            />
-          ) : (
-            <SearchBar
-              placeholder="iOS searchbar"
-              platform="ios"
-              {...dummySearchBarProps}
-            />
-          )}
-
-          {this.state.fontLoaded ? (
-            <View style={styles.list}>{allLists}</View>
-          ) : (
-            <Text>Loading ...</Text>
-          )}
-        </ScrollView>
       </SafeAreaView>
     );
   }
