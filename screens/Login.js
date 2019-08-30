@@ -147,7 +147,7 @@ export default class Login extends React.Component {
           console.log("unknown error");
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
       });
     event.preventDefault();
@@ -164,6 +164,7 @@ export default class Login extends React.Component {
     });
   };
   async componentDidMount() {
+    
     this.keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       this._keyboardDidShow
@@ -175,7 +176,7 @@ export default class Login extends React.Component {
 
     // this._createNotificationAsync();
     if (Platform.OS === "android") {
-      Expo.Notifications.createChannelAndroidAsync("new", {
+      Notifications.createChannelAndroidAsync("new", {
         name: "Delivera Business",
         priority: "max",
         vibrate: [0, 250, 250, 250],
@@ -183,7 +184,7 @@ export default class Login extends React.Component {
       });
     }
     if (Platform.OS === "android") {
-      Expo.Notifications.createChannelAndroidAsync("paid", {
+      Notifications.createChannelAndroidAsync("paid", {
         name: "Delivera Business",
         priority: "max",
         vibrate: [0, 250, 250, 250],
@@ -340,15 +341,15 @@ export default class Login extends React.Component {
             </View>
           </Animated.View>
         ) : (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <Image
-              style={{ width: 100, height: 100 }}
-              source={require("../assets/loader.gif")}
-            />
-          </View>
-        )}
+            <View
+              style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            >
+              <Image
+                style={{ width: 100, height: 100 }}
+                source={require("../assets/loader.gif")}
+              />
+            </View>
+          )}
       </View>
     );
   }

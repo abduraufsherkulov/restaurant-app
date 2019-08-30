@@ -18,6 +18,16 @@ import { AppLoading, SplashScreen } from "expo";
 import { Asset } from 'expo-asset';
 import Constants from 'expo-constants';
 import * as Font from 'expo-font';
+
+import {decode, encode} from 'base-64'
+
+if (!global.btoa) {
+    global.btoa = encode;
+}
+
+if (!global.atob) {
+    global.atob = decode;
+}
 class App extends React.Component {
   state = {
     isSplashReady: false,
