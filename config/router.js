@@ -17,7 +17,7 @@ import MyOrders from "../screens/subscreens/MyOrders";
 import NewOrders from "../screens/subscreens/NewOrders";
 import InfoScreen from "../screens/InfoScreen";
 import MyInfoScreen from "../screens/MyInfoScreen";
-import { Font } from "expo";
+import * as Font from 'expo-font';
 import MyHistory from "../screens/subscreens/MyHistory";
 import DummyInfoScreen from "../screens/DummyInfoScreen";
 

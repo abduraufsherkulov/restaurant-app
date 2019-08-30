@@ -14,7 +14,7 @@ import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
 import { Text, View, Stylesheet, Image } from "react-native";
 
-import { Font } from "expo";
+import * as Font from 'expo-font';
 import MainModal from "./MainModal";
 
 class HomeLists extends PureComponent {

@@ -7,7 +7,7 @@ import {
   YAxis
 } from "react-native-svg-charts";
 import { Circle, G, Line, Text } from 'react-native-svg'
-import { Font } from "expo";
+import * as Font from 'expo-font';
 
 import {Text as MainText, View, ScrollView, Image } from "react-native";
 import * as scale from "d3-scale";

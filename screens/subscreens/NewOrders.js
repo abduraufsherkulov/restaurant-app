@@ -1,6 +1,6 @@
 import React from "react";
 import { SafeAreaView } from "react-navigation";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import {Ionicons} from "@expo/vector-icons";
 import moment from "moment";
 import {
   AsyncStorage,
@@ -16,7 +16,7 @@ import {
 import axios from "axios";
 import { Text } from "react-native-elements";
 import HomeLists from "./newOrders/HomeLists";
-import { Font } from "expo";
+import * as Font from 'expo-font';
 import { NavigationLogo } from "../../assets/images/MainSvg";
 const isAndroid = Platform.OS === "android";
 

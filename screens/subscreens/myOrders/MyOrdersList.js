@@ -14,7 +14,7 @@ import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
 import { Text, View, StyleSheet, Image } from "react-native";
 
-import { Font } from "expo";
+import * as Font from 'expo-font';
 
 class MyOrdersList extends PureComponent {
   constructor(props) {

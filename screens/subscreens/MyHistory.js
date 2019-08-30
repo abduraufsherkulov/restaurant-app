@@ -1,6 +1,6 @@
 import React from "react";
 import { SafeAreaView } from "react-navigation";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import {Ionicons} from "@expo/vector-icons";
 import moment from "moment";
 import {
   AsyncStorage,
@@ -13,7 +13,7 @@ import {
   RefreshControl,
   FlatList
 } from "react-native";
-import { Font } from "expo";
+import * as Font from 'expo-font';
 
 import { SearchBar } from "react-native-elements";
 

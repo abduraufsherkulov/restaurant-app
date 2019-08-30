@@ -11,7 +11,7 @@ import {
   Input,
   Button
 } from "react-native-elements";
-import { Font } from "expo";
+import * as Font from 'expo-font';
 
 import { LinearGradient } from "expo";
 import { TouchableHighlight } from "react-native";

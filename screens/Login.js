@@ -13,7 +13,11 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Input, Button } from "react-native-elements";
-import { Font, Permissions, Notifications } from "expo";
+import { Notifications } from "expo";
+import * as Permissions from 'expo-permissions';
+import * as Font from 'expo-font';
+import Constants from 'expo-constants';
+
 import axios from "axios";
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -71,8 +75,8 @@ export default class Login extends React.Component {
       showLoading: false,
       platform: Platform.OS,
       app_version: Platform.Version,
-      device_info: Expo.Constants.deviceName,
-      device_uuid: Expo.Constants.installationId,
+      device_info: Constants.deviceName,
+      device_uuid: Constants.installationId,
       moveAnim: new Animated.Value(200)
     };
   }
