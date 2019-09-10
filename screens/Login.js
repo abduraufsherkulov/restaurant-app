@@ -9,6 +9,7 @@ import {
   Platform,
   Image,
   StatusBar,
+  KeyboardAvoidingView,
   Animated
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
@@ -76,8 +77,7 @@ export default class Login extends React.Component {
       platform: Platform.OS,
       app_version: Platform.Version,
       device_info: Constants.deviceName,
-      device_uuid: Constants.installationId,
-      moveAnim: new Animated.Value(200)
+      device_uuid: Constants.installationId
     };
   }
 
@@ -164,16 +164,6 @@ export default class Login extends React.Component {
     });
   };
   async componentDidMount() {
-    
-    this.keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      this._keyboardDidShow
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this._keyboardDidHide
-    );
-
     // this._createNotificationAsync();
     if (Platform.OS === "android") {
       Notifications.createChannelAndroidAsync("new", {
@@ -200,52 +190,29 @@ export default class Login extends React.Component {
     });
     this.setState({ fontLoaded: true, token: token });
   }
-  _keyboardDidShow = () => {
-    Animated.timing(
-      // Animate over time
-      this.state.moveAnim, // The animated value to drive
-      {
-        toValue: 20, // Animate to opacity: 1 (opaque)
-        duration: 1 // Make it take a while
-      }
-    ).start();
-    // console.log(this.state.moveAnim);
-  };
-
-  _keyboardDidHide = () => {
-    Animated.timing(
-      // Animate over time
-      this.state.moveAnim, // The animated value to drive
-      {
-        toValue: 200, // Animate to opacity: 1 (opaque)
-        duration: 1 // Make it take a while
-      }
-    ).start();
-    // console.log(this.state.moveAnim);
-  };
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-  }
   render() {
     const {
       username,
       password,
       username_valid,
-      showLoading,
-      moveAnim
+      showLoading
     } = this.state;
     return (
       <View style={styles.container}>
         {this.state.fontLoaded ? (
-          <Animated.View
+
+          <KeyboardAvoidingView
+            // style={styles.container}
+            behavior="height"
+
             style={{
               backgroundColor: "transparent",
-              width: 280,
-              height: 300,
-              position: "absolute",
-              bottom: moveAnim
+              display: 'flex',
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
+            enabled
           >
             <View style={styles.loginInput}>
               <Image source={BG_IMAGE} style={{ marginBottom: 40 }} />
@@ -339,7 +306,7 @@ export default class Login extends React.Component {
                 }}
               />
             </View>
-          </Animated.View>
+          </KeyboardAvoidingView>
         ) : (
             <View
               style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
@@ -370,15 +337,13 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     width: 280,
     height: 300,
-    position: "absolute",
-    bottom: 200
-  },
-  loginTitle: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center"
   },
   loginInput: {
+    width: 280,
+    height: 300,
+    textAlign: "center"
+  },
+  loginTitle: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
