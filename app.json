@@ -3,7 +3,7 @@
     "name": "Delivera Business",
     "slug": "Delivera-Business",
     "privacy": "public",
-    "sdkVersion": "34.0.0",
+    "sdkVersion": "35.0.0",
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
@@ -56,6 +56,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
+      "icon": "./assets/icon.ios.png",
       "supportsTablet": true,
       "bundleIdentifier": "business.delivera.uz"
     }

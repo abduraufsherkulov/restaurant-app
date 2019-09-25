@@ -2,12 +2,13 @@ import React, { Component, PureComponent } from "react";
 import { StatusBar, Platform, AsyncStorage } from "react-native";
 import { Text } from "react-native-elements";
 import {
-  createBottomTabNavigator,
-  createStackNavigator,
-  createMaterialTopTabNavigator,
   createSwitchNavigator,
   createAppContainer
 } from "react-navigation";
+import {createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation-tabs';
+import {createStackNavigator} from 'react-navigation-stack';
+
+
 import axios from "axios";
 
 import Dashboard from "../screens/Dashboard";
